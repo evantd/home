@@ -1,3 +1,5 @@
+call pathogen#infect()
+Helptags
 " eI config
 " Configuration file for vim
 " initial author: John Carrino (carrino@)
