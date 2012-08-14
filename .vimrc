@@ -50,29 +50,6 @@
   " These are files I am not likely to want to edit or read.
   set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc,.class
 
-"Use a temp directory in the home dir rather than in tmp where it can get
-"cleaned up without our consent
-perl <<EOT
-  # Get the user name, should probably get the home dir...
-  my $home_dir = (getpwuid($<))[7];
-
-  if ( -e $home_dir ) {
-    my $temp_location = "$home_dir/.vim-tmp";
-    my $tmp_dir = $temp_location . '/vXXX';
-    my $swp_dir = $temp_location . '/swps';
-
-    # If the location doesn't exist, create it
-    mkdir $temp_location unless ( -e $temp_location );
-
-    mkdir $tmp_dir unless ( -e $tmp_dir );
-    mkdir $swp_dir unless ( -e $swp_dir );
-
-    # Set TMPDIR and directory to the new location
-    VIM::DoCommand("let \$TMPDIR = '" . $tmp_dir . "'") if ( -w $tmp_dir );
-    VIM::DoCommand("set directory=" . $swp_dir) if ( -w $swp_dir );
-  }
-EOT
-
 " viminfo options
   " read/write a .viminfo file, don't store more than
   " 50 lines of registers
@@ -131,21 +108,6 @@ set smartcase     " smart case matching
 set showmatch     " show matching parenthesis on insert
 
 set visualbell    " use visual bell instead of beeping
-
-map T :TlistToggle<CR>
-let Tlist_Close_On_Select=1
-let Tlist_Exit_OnlyWindow=1
-let Tlist_Process_File_Always=1
-let Tlist_File_Fold_Auto_Close=1
-let Tlist_GainFocus_On_ToggleOpen=1
-let Tlist_Display_Prototype=1 " java is too verbose to make this reasonable for vertical splits
-let Tlist_Use_Horiz_Window=1
-let Tlist_WinHeight=20
-let Tlist_Use_Right_Window=1
-let Tlist_Ctags_Cmd='~/bin/ctags-wrapper'
-let Tlist_Sort_Type='name'
-set updatetime=1000
-set statusline=%<%f\ %h%m%r%w%y%=%([%{Tlist_Get_Tag_Prototype_By_Line()}]%)\ %l/%L,%c%V\ \ %P
 
 set foldmethod=syntax "or marker with marker set to {,}
 set foldlevel=9
