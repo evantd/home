@@ -23,3 +23,5 @@
 	noprefix = true
 [rerere]
 	enabled = true
+[credential]
+	helper = store
