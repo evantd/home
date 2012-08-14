@@ -1,0 +1,18 @@
+LargeFile	/rhel5pdi/workplace/edower/gh/.vimrc	/^  let g:LargeFile = 100$/;"	v	line:92
+Tlist_Close_On_Select	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_Close_On_Select=1$/;"	v	line:138
+Tlist_Ctags_Cmd	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_Ctags_Cmd='~\/bin\/ctags-wrapper'$/;"	v	line:147
+Tlist_Display_Prototype	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_Display_Prototype=1 " java is too verbose to make this reasonable for vertical splits$/;"	v	line:143
+Tlist_Exit_OnlyWindow	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_Exit_OnlyWindow=1$/;"	v	line:139
+Tlist_File_Fold_Auto_Close	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_File_Fold_Auto_Close=1$/;"	v	line:141
+Tlist_GainFocus_On_ToggleOpen	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_GainFocus_On_ToggleOpen=1$/;"	v	line:142
+Tlist_Process_File_Always	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_Process_File_Always=1$/;"	v	line:140
+Tlist_Sort_Type	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_Sort_Type='name'$/;"	v	line:148
+Tlist_Use_Horiz_Window	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_Use_Horiz_Window=1$/;"	v	line:144
+Tlist_Use_Right_Window	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_Use_Right_Window=1$/;"	v	line:146
+Tlist_WinHeight	/rhel5pdi/workplace/edower/gh/.vimrc	/^let Tlist_WinHeight=20$/;"	v	line:145
+getZshrcGitCommit	/rhel5pdi/workplace/edower/gh/.zshrc.d/prompt.zsh	/^function getZshrcGitCommit {$/;"	f	line:3
+java_highlight_debug	/rhel5pdi/workplace/edower/gh/.vimrc	/^let java_highlight_debug=1$/;"	v	line:158
+java_highlight_functions	/rhel5pdi/workplace/edower/gh/.vimrc	/^let java_highlight_functions="style"$/;"	v	line:157
+perl_fold	/rhel5pdi/workplace/edower/gh/.vimrc	/^let perl_fold=1$/;"	v	line:156
+spell_auto_type	/rhel5pdi/workplace/edower/gh/.vimrc	/^    let spell_auto_type=""$/;"	v	line:88
+update_prompt_colors	/rhel5pdi/workplace/edower/gh/.zshrc.d/prompt.zsh	/^function update_prompt_colors {$/;"	f	line:29

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+wsRoot="`findup packageInfo`"
+echo "Updating tags for workspace $wsRoot..."
+if [ "x" '!=' "x$wsRoot" -a -d "$wsRoot" ]
+then
+    ctags -R --links=no --sort=yes -f "$wsRoot/.tags" "$wsRoot/src"
+fi
+

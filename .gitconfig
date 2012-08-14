@@ -1,0 +1,25 @@
+[user]
+	name = Evan Dower
+	email = evantd@gmail.com
+[color]
+	ui = auto
+[core]
+	pager = less -FMRiX
+	excludesfile = /home/edower/.gitignore
+[push]
+	default = upstream
+[alias]
+	slog = log --stat --summary -M -C -C
+	dag = log --graph --decorate --pretty=oneline --abbrev-commit --all
+	dags = log --graph --decorate --all --stat --summary -M -C -C
+	pdiff = diff -M -C -C --patience --color-words -b -w
+	rdiff = diff -M -C -C -U999999999 --no-color
+	plog = log -p -M -C -C --patience --color-words -b -w
+	splog = log --stat --summary -M -C -C -p -M -C -C --patience --color-words -b -w
+[branch]
+	autosetupmerge = always
+[diff]
+	wordRegex = [[:upper:]][[:lower:]]+|[[:lower:]]+|[[:upper:]]+|[[:digit:]]+|[[:punct:]]|[^[:space:]]
+	noprefix = true
+[rerere]
+	enabled = true

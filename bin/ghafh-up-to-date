@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cd ~
+
+~/bin/ghafh-pull
+
+localBranch=`git symbolic-ref HEAD | sed 's:.*/::'`
+remote=`git config branch.$localBranch.remote`
+remoteBranch=`git config branch.$localBranch.merge | sed 's:.*/::'`
+localRev=`git rev-parse HEAD`
+remoteRev=`git rev-parse $remote/$remoteBranch`
+
+exec test "x$localRev" = "x$remoteRev"

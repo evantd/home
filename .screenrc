@@ -1,0 +1,24 @@
+vbell on
+vbell_msg "Ring"
+
+# detach on hangup
+autodetach on
+
+# don't display copyright page
+startup_message off
+
+# scroll back
+defscrollback 1000
+
+# setup the caption
+hardstatus alwayslastline "%{-b gk}%-w%{+b kg}%50>%n %t%{-b gk}%+w %=%C%<"
+
+# Set the altscreen so that when you quit vi, it will go back to
+# what it was before
+altscreen on
+
+setenv SHLVL 0
+
+attrcolor b ".I"    # allow bold colors - necessary for some reason
+termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'   # tell screen how to set colors. AB = background, AF=foreground
+defbce on    # use current bg color for erased chars

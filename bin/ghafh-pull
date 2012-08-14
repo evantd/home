@@ -1,0 +1,29 @@
+#!/bin/sh
+
+cd ~
+
+touch ~/.ghafh-sig
+localSig=`cat ~/.ghafh-sig`
+remoteSig=`~/bin/get-repo-sig usr/edower/home`
+
+if [ "x$localSig" = "x$remoteSig" ]
+then
+    exit 0
+else
+    if git diff --quiet
+    then
+        if git diff --quiet --cached
+        then
+            git pull --ff-only && echo "$remoteSig" > ~/.ghafh-sig
+            exit $?
+        else
+            git fetch && echo "$remoteSig" > ~/.ghafh-sig
+            exit $?
+        fi
+    else
+        git fetch && echo "$remoteSig" > ~/.ghafh-sig
+        exit $?
+    fi
+fi
+
+exit 1
