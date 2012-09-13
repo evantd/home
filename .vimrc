@@ -1,5 +1,31 @@
-call pathogen#infect()
-Helptags
+" Setting up Vundle - the vim plugin bundler
+  set nocompatible          " Use Vim defaults (much better!)
+  filetype off
+  let vundle_readme=expand('~/.vim/bundle/vundle/README.md')
+  if !filereadable(vundle_readme)
+    echo "Installing Vundle.."
+    echo ""
+    silent !git clone https://github.com/gmarik/vundle ~/.vim/bundle/vundle
+  endif
+  set rtp+=~/.vim/bundle/vundle/
+  call vundle#rc()
+  Bundle 'gmarik/vundle'
+
+  "Add your bundles here
+  Bundle 'altercation/vim-colors-solarized'
+  Bundle 'scrooloose/nerdtree'
+  Bundle "MarcWeber/vim-addon-mw-utils"
+  Bundle "tomtom/tlib_vim"
+  Bundle "honza/snipmate-snippets"
+  Bundle "garbas/vim-snipmate"
+  Bundle "tpope/vim-haml"
+
+  filetype plugin indent on
+  echo "Installing Bundles, please ignore key map error messages"
+  echo ""
+  BundleInstall!
+" Setting up Vundle - the vim plugin bundler end
+
 " eI config
 " Configuration file for vim
 " initial author: John Carrino (carrino@)
@@ -20,7 +46,6 @@ Helptags
   set linebreak             " This displays long lines as wrapped at word boundries
   set matchtime=10          " Time to flash the brack with showmatch
   set nobackup              " Don't keep a backup file
-  set nocompatible          " Use Vim defaults (much better!)
   set nofen                 " disable folds
   set notimeout             " i like to be pokey
   set nottimeout            " take as long as i like to type commands
@@ -67,12 +92,6 @@ Helptags
   " LargeFile.vim settings
   " don't run syntax and other expensive things on files larger than NUM megs
   let g:LargeFile = 100
-
-"Turn on filetype plugins to automagically
-  "Grab commands for particular filetypes.
-  "Grabbed from $VIM/ftplugin
-  filetype plugin on
-  filetype indent on
 
 " my own config, originally stolen from dnangle
 
