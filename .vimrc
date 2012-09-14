@@ -13,6 +13,8 @@
 
   "Add your bundles here
   Bundle 'altercation/vim-colors-solarized'
+  Bundle 'chriskempson/base16-vim'
+  Bundle 'chriskempson/vim-tomorrow-theme'
   Bundle 'scrooloose/nerdtree'
   Bundle "MarcWeber/vim-addon-mw-utils"
   Bundle "tomtom/tlib_vim"
@@ -23,7 +25,7 @@
   filetype plugin indent on
   echo "Installing Bundles, please ignore key map error messages"
   echo ""
-  BundleInstall!
+  BundleInstall
 " Setting up Vundle - the vim plugin bundler end
 
 " eI config
@@ -104,9 +106,9 @@ set nocompatible  " use VIM defaults
 syntax on         " turn on syntax highlighting
 set t_Co=256      " turn on 256-color support
 set bg=dark       " dark terminal background
-colorscheme darkblue
-autocmd BufReadPost * SetColors darkblue delek desert elflord pablo ron torte
-autocmd BufReadPost * call NextColor(0)
+colorscheme Tomorrow-Night-Bright
+"autocmd BufReadPost * SetColors darkblue delek desert elflord pablo ron torte
+"autocmd BufReadPost * call NextColor(0)
 
 set backspace=2   " allow backspacing over anything
 
