@@ -23,9 +23,9 @@
   Bundle "tpope/vim-haml"
 
   filetype plugin indent on
-  echo "Installing Bundles, please ignore key map error messages"
-  echo ""
-  BundleInstall
+"  echo "Installing Bundles, please ignore key map error messages"
+"  echo ""
+"  BundleInstall
 " Setting up Vundle - the vim plugin bundler end
 
 " eI config
