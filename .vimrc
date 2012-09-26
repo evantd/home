@@ -33,11 +33,7 @@
 " initial author: John Carrino (carrino@)
 
 " Standard vim options
-  set autoindent            " always set autoindenting on
-  set backspace=2           " allow backspacing over everything in insert mode
-  set cindent shiftwidth=4  " Same thing with cindent
   set diffopt=filler,iwhite " keep files synced and ignore whitespace
-  set expandtab             " Get rid of tabs altogether and replace with spaces
   set guioptions-=m         " Remove menu from the gui
   set guioptions-=T         " Remove toolbar
   set hidden                " hide buffers instead of closing
@@ -53,10 +49,8 @@
   set nottimeout            " take as long as i like to type commands
   set ruler                 " the ruler on the bottom is useful
   set scrolloff=1           " dont let the curser get too close to the edge
-  set shiftwidth=4          " Set indention level to be the same as softtabstop
   set showcmd               " Show (partial) command in status line.
   set showmatch             " Show matching brackets.
-  set softtabstop=4         " Why are tabs so big?  This fixes it
   set textwidth=0           " Don't wrap words by default
   "set textwidth=80          " This wraps a line with a break when you reach 80 chars
   set timeoutlen=10000      " Time to wait for a map sequence to complete
@@ -112,12 +106,10 @@ colorscheme Tomorrow-Night-Bright
 
 set backspace=2   " allow backspacing over anything
 
-set tabstop=8     " hard tab is 8 spaces
-set softtabstop=4 " soft tab is 4 spaces
-set shiftwidth=4  " use 4 spaces for indent
-set expandtab     " expand tabs to spaces
-set autoindent    " start new lines at same indent as last line
-set smartindent   " use fancy autoindenting
+set expandtab             " Get rid of tabs altogether and replace with spaces
+set shiftwidth=2          " Set indention level to be the same as softtabstop
+set softtabstop=2         " Why are tabs so big?  This fixes it
+set autoindent            " always set autoindenting on
 
 set magic         " don't need to escape ., *, etc in regexp
 set showmode      " shows whether in INSERT, REPLACE, VISUAL, etc
