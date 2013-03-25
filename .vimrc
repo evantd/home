@@ -124,11 +124,12 @@ set showmatch     " show matching parenthesis on insert
 
 set visualbell    " use visual bell instead of beeping
 
-set foldmethod=syntax "or marker with marker set to {,}
-set foldlevel=9
-set foldcolumn=5 "shows how deep into the fold hierarchy you're in. use a higher number based on preference
-set foldenable
-let perl_fold=1
+"set foldmethod=syntax "or marker with marker set to {,}
+"set foldlevel=9
+"set foldcolumn=5 "shows how deep into the fold hierarchy you're in. use a higher number based on preference
+"set foldenable
+"let perl_fold=1
+
 let java_highlight_functions="style"
 let java_highlight_debug=1
 
