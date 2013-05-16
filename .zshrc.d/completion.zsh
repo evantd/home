@@ -7,4 +7,6 @@ zstyle ':completion:*:descriptions' format 'Completing %d:'
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' list-colors ''
 zstyle ':completion:*' insert-unambiguous
+# Disable hostname completion
+zstyle ':completion:*' hosts off
 compinit
