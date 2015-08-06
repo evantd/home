@@ -4,7 +4,7 @@ cd ~
 
 touch ~/.ghafh-sig
 localSig=`cat ~/.ghafh-sig`
-remoteSig=`~/bin/get-repo-sig usr/edower/home`
+remoteSig=`~/bin/get-repo-sig`
 
 if [ "x$localSig" = "x$remoteSig" ]
 then

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Naive implementation: Results in a fetch every 1000 seconds (16.67 minutes).
+expr `date '+%s'` / 1000
