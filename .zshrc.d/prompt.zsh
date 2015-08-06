@@ -28,7 +28,20 @@ pp[path]="$bg[default]$fg_no_bold[default]"
 
 function update_prompt_colors {
     # make nasty colors when I don't have a valid kerberos ticket or my home repo is out-of-date
-    if klist -5cs
+
+    if [ "$KRB_IN_USE" = "yes" ]
+    then
+        if klist -5cs
+        then
+            auth_up_to_date="yes"
+        else
+            auth_up_to_date="no"
+        fi
+    else
+        auth_up_to_date="yes"
+    fi
+
+    if [ "$auth_up_to_date" = "yes" ]
     then
         if ~/bin/ghafh-up-to-date
         then
