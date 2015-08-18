@@ -3,3 +3,6 @@ export PATH="$HOME/env/bin:$PATH"
 
 # indeedrc depends on a different mktemp
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+
+export INDEED_OFFICE="seaoff"
+export INDEED_TEAMS="resume"
