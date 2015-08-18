@@ -14,8 +14,11 @@ bindkey -M vicmd ':' execute-named-cmd
 
 # sweet history searching and editing
 bindkey '^[[A' history-beginning-search-backward
+bindkey '^[OA' history-beginning-search-backward
 bindkey '^[[B' history-beginning-search-forward
+bindkey '^[OB' history-beginning-search-forward
 bindkey '\eq' push-line-or-edit
+bindkey '\M-E' push-line-or-edit
 
 # similar, but slightly different, for command mode
 bindkey -M vicmd 'k' up-line-or-search
