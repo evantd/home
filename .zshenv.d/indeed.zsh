@@ -4,5 +4,8 @@ export PATH="$HOME/env/bin:$PATH"
 # indeedrc depends on a different mktemp
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 
+export INDEED_PROJECT_DIR="$HOME/indeed"
+export PATH="$INDEED_PROJECT_DIR/hobo/bin:$PATH"
+
 export INDEED_OFFICE="seaoff"
 export INDEED_TEAMS="resume"
