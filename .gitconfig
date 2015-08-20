@@ -10,7 +10,7 @@
 	default = upstream
 [alias]
 	slog = log --stat --summary -M -C -C
-	dag = log --graph --decorate --pretty=oneline --abbrev-commit --all
+	dag = log --graph --decorate --pretty=oneline --abbrev-commit
 	dags = log --graph --decorate --all --stat --summary -M -C -C
 	pdiff = diff -M -C -C --patience --color-words -b -w
 	rdiff = diff -M -C -C -U999999999 --no-color
