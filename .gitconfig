@@ -6,6 +6,7 @@
 [core]
 	pager = less -FMRiX
 	excludesfile = /home/edower/.gitignore
+	attributesfile = /Users/edower/indeed/javadev/git/gitattributes
 [push]
 	default = upstream
 [alias]
@@ -25,3 +26,9 @@
 	enabled = true
 [credential]
 	helper = store
+[include]
+	path = /Users/edower/indeed/javadev/git/merge-drivers
+	path = /Users/edower/indeed/javadev/git/aliases
+	path = /Users/edower/indeed/javadev/git/general-config
+[indeed "prefix"]
+	feature = jira/
