@@ -43,6 +43,14 @@
   set laststatus=2          " always have status bar
   set linebreak             " This displays long lines as wrapped at word boundries
   set matchtime=10          " Time to flash the brack with showmatch
+  if isdirectory($HOME . '/.vim/swap') == 0
+    :silent !mkdir -p ~/.vim/swap >/dev/null 2>&1
+  endif
+  set directory=~/.vim/swap//
+  if isdirectory($HOME . '/.vim/backup') == 0
+    :silent !mkdir -p ~/.vim/backup >/dev/null 2>&1
+  endif
+  set backupdir=~/.vim/backup//
   set nobackup              " Don't keep a backup file
   set nofen                 " disable folds
   set notimeout             " i like to be pokey
