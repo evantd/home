@@ -7,6 +7,7 @@
 	pager = less -FMRiX
 	excludesfile = /home/edower/.gitignore
 	attributesfile = /Users/edower/indeed/javadev/git/gitattributes
+	excludesfile = /home/edower/env/etc/git/gitignore_global
 [push]
 	default = upstream
 [alias]
@@ -30,5 +31,11 @@
 	path = /Users/edower/indeed/javadev/git/merge-drivers
 	path = /Users/edower/indeed/javadev/git/aliases
 	path = /Users/edower/indeed/javadev/git/general-config
+	path = /home/edower/env/etc/git/aliases
+	path = /home/edower/env/etc/git/general-config
+	path = /home/edower/env/etc/dradis/git/aliases
+	path = /home/edower/env/etc/dradis/git/general-config
+	path = /home/edower/env/etc/resume/git/aliases
+	path = /home/edower/env/etc/resume/git/general-config
 [indeed "prefix"]
 	feature = jira/
