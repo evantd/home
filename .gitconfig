@@ -9,7 +9,7 @@
 	attributesfile = /Users/edower/indeed/javadev/git/gitattributes
 	excludesfile = /home/edower/env/etc/git/gitignore_global
 [push]
-	default = upstream
+	default = simple
 [alias]
 	slog = log --stat --summary -M -C -C
 	dag = log --graph --decorate --pretty=oneline --abbrev-commit
