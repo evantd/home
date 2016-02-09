@@ -11,4 +11,4 @@ export PATH="$INDEED_PROJECT_DIR/javadev/ant/bin:$PATH"
 export PROGEX_EVAL_DIR="$INDEED_PROJECT_DIR/progex/progex-eval"
 
 export INDEED_OFFICE="seaoff"
-export INDEED_TEAMS="dradis resume"
+export INDEED_TEAMS="indapply dradis resume"
