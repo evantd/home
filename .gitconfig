@@ -18,6 +18,8 @@
 	rdiff = diff -M -C -C -U999999999 --no-color
 	plog = log -p -M -C -C --patience --color-words -b -w
 	splog = log --stat --summary -M -C -C -p -M -C -C --patience --color-words -b -w
+	backup = push --prune edower
+	ready = !git push -u origin HEAD:$(git symbolic-ref --short HEAD)
 [branch]
 	autosetupmerge = always
 [diff]
