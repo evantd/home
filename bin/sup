@@ -6,7 +6,7 @@ colors
 echo $(pwd) @ $(date)
 
 print "$fg_bold[cyan]Branches:$fg_no_bold[default]"
-git branch -avv --color=always | grep -vEe 'remotes/origin/jira/'
+git branch -avv --color=always | grep -vEe 'remotes/.*/jira/'
 
 print "$fg_bold[cyan]Status:$fg_no_bold[default]"
 git status
