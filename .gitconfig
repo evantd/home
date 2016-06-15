@@ -4,20 +4,19 @@
 [color]
 	ui = auto
 [core]
-	pager = less -FMRiX
+	pager = diff-so-fancy | less --tabs=4 -FMRiX
 	excludesfile = /home/edower/.gitignore
 	attributesfile = /Users/edower/indeed/javadev/git/gitattributes
 	excludesfile = /home/edower/env/etc/git/gitignore_global
 [push]
 	default = simple
 [alias]
-	slog = log --stat --summary -M -C -C
+	slog = log --stat --summary
 	dag = log --graph --decorate --pretty=oneline --abbrev-commit
-	dags = log --graph --decorate --all --stat --summary -M -C -C
-	pdiff = diff -M -C -C --patience --color-words -b -w
-	rdiff = diff -M -C -C -U999999999 --no-color
-	plog = log -p -M -C -C --patience --color-words -b -w
-	splog = log --stat --summary -M -C -C -p -M -C -C --patience --color-words -b -w
+	dags = log --graph --decorate --all --stat --summary
+	pdiff = diff -M -C -C --color-words -b -w
+	plog = log -p -M -C -C --color-words -b -w
+	splog = log --stat --summary -p --color-words -b -w
 	backup = push --all -f --prune edower
 	ready = !git push -u origin HEAD:$(git symbolic-ref --short HEAD)
 [branch]
@@ -25,6 +24,9 @@
 [diff]
 	wordRegex = [[:upper:]][[:lower:]]+|[[:lower:]]+|[[:upper:]]+|[[:digit:]]+|[[:punct:]]|[^[:space:]]
 	noprefix = true
+	compactionHeuristic = true
+	algorithm = histogram
+	rename = copies
 [rerere]
 	enabled = true
 [credential]
