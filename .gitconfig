@@ -43,3 +43,5 @@
 	path = /home/edower/env/etc/resume/git/general-config
 [indeed "prefix"]
 	feature = jira/
+[interactive]
+	diffFilter = diff-so-fancy
