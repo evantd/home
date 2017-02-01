@@ -10,6 +10,7 @@
 	excludesfile = /home/edower/env/etc/git/gitignore_global
 [push]
 	default = simple
+	followTags = true
 [alias]
 	slog = log --stat --summary
 	dag = log --graph --decorate --pretty=oneline --abbrev-commit
