@@ -5,9 +5,9 @@
 	ui = auto
 [core]
 	pager = diff-so-fancy | less --tabs=4 -FMRiX
-	excludesfile = /home/edower/.gitignore
-	attributesfile = /Users/edower/indeed/javadev/git/gitattributes
-	excludesfile = /home/edower/env/etc/git/gitignore_global
+	excludesfile = ~/.gitignore
+	attributesfile = ~/indeed/javadev/git/gitattributes
+	excludesfile = ~/env/etc/git/gitignore_global
 [push]
 	default = simple
 	followTags = true
@@ -33,15 +33,15 @@
 [credential]
 	helper = store
 [include]
-	path = /Users/edower/indeed/javadev/git/merge-drivers
-	path = /Users/edower/indeed/javadev/git/aliases
-	path = /Users/edower/indeed/javadev/git/general-config
-	path = /home/edower/env/etc/git/aliases
-	path = /home/edower/env/etc/git/general-config
-	path = /home/edower/env/etc/dradis/git/aliases
-	path = /home/edower/env/etc/dradis/git/general-config
-	path = /home/edower/env/etc/resume/git/aliases
-	path = /home/edower/env/etc/resume/git/general-config
+	path = ~/indeed/javadev/git/merge-drivers
+	path = ~/indeed/javadev/git/aliases
+	path = ~/indeed/javadev/git/general-config
+	path = ~/env/etc/git/aliases
+	path = ~/env/etc/git/general-config
+	path = ~/env/etc/dradis/git/aliases
+	path = ~/env/etc/dradis/git/general-config
+	path = ~/env/etc/resume/git/aliases
+	path = ~/env/etc/resume/git/general-config
 [indeed "prefix"]
 	feature = jira/
 [interactive]
