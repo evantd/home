@@ -1,0 +1,39 @@
+#!/bin/sh
+
+repo=`basename $PWD`
+
+cat > .idea/webServers.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="cb1ffff4-9ef2-47d2-a36f-0953798187d7" name="desktop" url="http://$USER.$INDEED_OFFICE.indeed.net">
+        <fileTransfer host="$USER.$INDEED_OFFICE.indeed.net" port="22" accessType="SFTP" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
+EOF
+
+cat > .idea/deployment.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" promptOnRemoteOverwrite="CHECK_CONTENT" serverName="desktop" notifyRemoteChanges="true">
+    <serverData>
+      <paths name="desktop">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/$USER/indeed/$repo" local="\$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
+EOF
