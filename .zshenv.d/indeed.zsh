@@ -8,7 +8,7 @@ export PATH="$HOME/env/bin:$PATH"
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 export PATH="$INDEED_PROJECT_DIR/javadev/ant/bin:$PATH"
 
-export PROGEX_EVAL_DIR="$INDEED_PROJECT_DIR/progex/progex-eval"
+export IVY_IGNORE_RELEASE=0
 
 export INDEED_OFFICE="seaoff"
 export INDEED_TEAMS="indapply dradis resume"
