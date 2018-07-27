@@ -46,3 +46,5 @@
 	feature = jira/
 [interactive]
 	diffFilter = diff-so-fancy
+[init]
+	templatedir = ~/.git-templates
