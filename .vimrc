@@ -106,9 +106,13 @@ match ExtraWhitespace /\s\+$\|	\|\t/
 set nocompatible  " use VIM defaults
 
 syntax on         " turn on syntax highlighting
+let base16colorspace=256
 set t_Co=256      " turn on 256-color support
 set bg=dark       " dark terminal background
 colorscheme Tomorrow-Night-Bright
+if filereadable(expand("~/.vimrc_background"))
+  source ~/.vimrc_background
+endif
 "autocmd BufReadPost * SetColors darkblue delek desert elflord pablo ron torte
 "autocmd BufReadPost * call NextColor(0)
 
