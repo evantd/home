@@ -21,6 +21,7 @@
   Bundle "honza/snipmate-snippets"
   Bundle "garbas/vim-snipmate"
   Bundle "tpope/vim-haml"
+  Bundle "maxbrunsfeld/vim-yankstack"
 
   filetype plugin indent on
 "  echo "Installing Bundles, please ignore key map error messages"
