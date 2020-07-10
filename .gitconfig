@@ -53,3 +53,8 @@
 	required = true
 [init]
 	templatedir = ~/.git-templates
+[merge "npm-merge-driver"]
+	name = automatically merge npm lockfiles
+	driver = npx npm-merge-driver merge %A %O %B %P
+[pull]
+	ff = only
