@@ -1,0 +1,6 @@
+#Custom merge drivers for various file types
+libraries.properties.release merge=libraries.properties.release
+npm-shrinkwrap.json merge=npm-merge-driver
+package-lock.json merge=npm-merge-driver
+*.po merge=pofile
+*.pot merge=pofile

@@ -6,7 +6,7 @@
 [core]
 	pager = diff-so-fancy | less --tabs=4 -FMRiX
 	excludesfile = ~/.gitignore
-	attributesfile = ~/indeed/javadev/git/gitattributes
+	attributesfile = ~/.config/git/attributes
 	excludesfile = ~/env/etc/git/gitignore_global
 [push]
 	default = simple
