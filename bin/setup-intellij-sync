@@ -7,8 +7,8 @@ cat > .idea/webServers.xml <<EOF
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="cb1ffff4-9ef2-47d2-a36f-0953798187d7" name="desktop" url="http://$USER.$INDEED_OFFICE.indeed.net">
-        <fileTransfer host="$USER.$INDEED_OFFICE.indeed.net" port="22" accessType="SFTP" authAgent="true">
+      <webServer id="cb1ffff4-9ef2-47d2-a36f-0953798187d7" name="desktop" url="http://$USER.wfh.ausos.indeed.net">
+        <fileTransfer host="$USER.wfh.ausos.indeed.net" port="22" accessType="SFTP" authAgent="true">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" />
           </advancedOptions>
