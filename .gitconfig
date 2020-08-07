@@ -56,8 +56,5 @@
 [merge "npm-merge-driver"]
 	name = automatically merge npm lockfiles
 	driver = npx npm-merge-driver merge %A %O %B %P
-[merge "pofile"]
-	name = custom merge driver for gettext po files
-	driver = git-po-merge %A %O %B
 [pull]
 	ff = only
