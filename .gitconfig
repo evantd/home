@@ -4,7 +4,7 @@
 [color]
 	ui = auto
 [core]
-	pager = diff-so-fancy | less --tabs=4 -FMRiX
+	pager = delta
 	excludesfile = ~/.gitignore
 	attributesfile = ~/.config/git/attributes
 	excludesfile = ~/env/etc/git/gitignore_global
@@ -45,7 +45,7 @@
 [indeed "prefix"]
 	feature = jira/
 [interactive]
-	diffFilter = diff-so-fancy
+	diffFilter = delta --color-only
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
