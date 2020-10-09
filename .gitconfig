@@ -33,9 +33,6 @@
 [credential]
 	helper = store
 [include]
-	path = ~/indeed/javadev/git/merge-drivers
-	path = ~/indeed/javadev/git/aliases
-	path = ~/indeed/javadev/git/general-config
 	path = ~/env/etc/git/aliases
 	path = ~/env/etc/git/general-config
 	path = ~/env/etc/dradis/git/aliases
