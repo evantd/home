@@ -10,7 +10,7 @@ export PATH="$INDEED_PROJECT_DIR/javadev/ant/bin:$PATH"
 
 export IVY_IGNORE_RELEASE=0
 
-export INDEED_OFFICE="seaoff"
+export INDEED_OFFICE="cvm.ausos"
 export INDEED_TEAMS="indapply dradis resume"
 
 # Save disk space by discarding previous versions of artifacts.
