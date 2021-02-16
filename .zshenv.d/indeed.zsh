@@ -7,6 +7,7 @@ export PATH="$HOME/env/bin:$PATH"
 # indeedrc depends on a different mktemp
 export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 export PATH="$INDEED_PROJECT_DIR/javadev/ant/bin:$PATH"
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 export IVY_IGNORE_RELEASE=0
 
