@@ -11,7 +11,7 @@ export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 export IVY_IGNORE_RELEASE=0
 
-export INDEED_OFFICE="cvm.ausos"
+export INDEED_OFFICE="cvm"
 export INDEED_TEAMS="indapply dradis resume"
 
 # Save disk space by discarding previous versions of artifacts.
