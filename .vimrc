@@ -18,6 +18,7 @@
   Bundle 'scrooloose/nerdtree'
   Bundle "MarcWeber/vim-addon-mw-utils"
   Bundle "tomtom/tlib_vim"
+  let g:snipMate = { 'snippet_version' : 1 }
   Bundle "honza/vim-snippets"
   Bundle "garbas/vim-snipmate"
   Bundle "tpope/vim-haml"
