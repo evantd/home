@@ -1,0 +1,43 @@
+[user]
+	name = Evan Dower
+	email = edower@indeed.com
+[color]
+	ui = auto
+[core]
+	pager = delta
+	excludesfile = ~/.gitignore
+[push]
+	default = simple
+	followTags = true
+[alias]
+	slog = log --stat --summary
+	dag = log --graph --decorate --pretty=oneline --abbrev-commit
+	dags = log --graph --decorate --all --stat --summary
+	pdiff = diff -M -C -C --color-words -b -w
+	plog = log -p -M -C -C --color-words -b -w
+	splog = log --stat --summary -p --color-words -b -w
+	backup = push --all -f --prune edower
+	ready = !git push -u origin HEAD:$(git symbolic-ref --short HEAD)
+[branch]
+	autosetupmerge = always
+[diff]
+	wordRegex = [[:upper:]][[:lower:]]+|[[:lower:]]+|[[:upper:]]+|[[:digit:]]+|[[:punct:]]|[^[:space:]]
+	noprefix = true
+	compactionHeuristic = true
+	algorithm = histogram
+	renames = copies
+[rerere]
+	enabled = true
+[credential]
+	helper = store
+[interactive]
+	diffFilter = delta --color-only
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[init]
+	templatedir = ~/.git-templates
+[pull]
+	ff = only

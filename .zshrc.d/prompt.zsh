@@ -1,7 +1,7 @@
 # .zshrc.d/prompt vim: set ft=zsh:
 
 function getZshrcGitCommit {
-    git --git-dir ~/.git log -1 --format=format:%H -- .zshenv .zshenv.d .zprofile .zprofile.d .zshrc .zshrc.d
+    git --git-dir ~/.git log -1 --format=format:%H -- .zshenv-personal .zshenv.d .zprofile-personal .zprofile.d .zshrc-personal .zshrc.d
 }
 export ZSHRC_GIT_COMMIT=`getZshrcGitCommit`
 
