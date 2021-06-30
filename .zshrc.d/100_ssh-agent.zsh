@@ -9,11 +9,6 @@ else
     }
 
     typeset -a precmd_functions
-    if [ $ZSH_MAJOR_VERSION -gt 4 -o \( $ZSH_MAJOR_VERSION -eq 4 -a $ZSH_MINOR_VERSION -ge 2 \) ]
-    then
-        precmd_functions+=update_ssh_auth_sock
-    else
-        precmd_functions[$(($#precmd_functions+1))]=update_ssh_auth_sock
-    fi
+    precmd_functions+=update_ssh_auth_sock
 
 fi
