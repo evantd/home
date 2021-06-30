@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# temporarily exit without doing anything until GitLab recovers
-exit 0
-
 cd ~
 
 touch ~/.ghafh-sig
