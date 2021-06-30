@@ -8,7 +8,7 @@ autodetach on
 startup_message off
 
 # scroll back
-defscrollback 1000
+defscrollback 10000
 
 # setup the caption
 hardstatus alwayslastline "%{-b gk}%-w%{+b kg}%50>%n %t%{-b gk}%+w %=%C%<"
