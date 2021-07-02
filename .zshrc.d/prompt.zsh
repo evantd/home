@@ -7,7 +7,7 @@ export ZSHRC_GIT_COMMIT=`getZshrcGitCommit`
 
 autoload -U colors
 colors
-typeset -A pp # _P_rompt _P_arts
+typeset -gA pp # _P_rompt _P_arts
 pp[end]="$bg[default]$fg_no_bold[default]"
 pp[punct]="$bg[default]$fg_bold[default]"
 pp[level]="$bg[default]$fg_no_bold[default]"
@@ -65,7 +65,7 @@ function update_prompt {
     PS1+="%{${pp[punct]}%}%#" # % for normal users, # for priveleged users
     PS1+="%{${pp[end]}%} " # return formatting to normal and end prompt with a space
 }
-typeset -a precmd_functions
+typeset -ga precmd_functions
 precmd_functions+=update_prompt
 
 update_prompt
