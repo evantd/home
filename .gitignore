@@ -1,3 +1,6 @@
 /.vim/docs/tags
 /log.txt
 /.idea
+.classpath
+.project
+.settings
