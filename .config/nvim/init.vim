@@ -27,8 +27,8 @@ Plug 'airblade/vim-gitgutter'
 " Status bar
 Plug 'itchyny/lightline.vim'
 
-" Nord theme
-Plug 'arcticicestudio/nord-vim'
+" For base16-bright theme/colorscheme
+Plug 'chriskempson/base16-vim'
 
 " Tabs
 Plug 'ap/vim-buftabline'
@@ -59,6 +59,12 @@ set laststatus=2
 " enable 256 colors
 set t_Co=256
 set t_ut=
+let base16colorspace=256
+set bg=dark       " dark terminal background
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
+endif
 
 " turn on line numbering
 set number
@@ -108,13 +114,12 @@ endfunction
 
 " color scheme
 syntax on
-colorscheme nord
 filetype on
 filetype plugin indent on
 
 " lightline
 set noshowmode
-let g:lightline = { 'colorscheme': 'nord' }
+let g:lightline = { 'colorscheme': 'Tomorrow_Night_Bright' }
 
 " code folding
 "set foldmethod=indent
