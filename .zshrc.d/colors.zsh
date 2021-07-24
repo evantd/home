@@ -9,7 +9,7 @@ then
   fi
   if [ -s "$BASE16_HELPER" ]
   then
-  eval "$("$BASE16_HELPER")"
-    _base16 "$BASE16_SHELL/scripts/base16-bright.sh" bright
+    eval "$("$BASE16_HELPER")"
+    _base16 "$BASE16_SHELL/scripts/base16-chalk.sh" chalk
   fi
 fi
