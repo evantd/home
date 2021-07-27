@@ -1,6 +1,6 @@
 # .zshrc
 
-setopt nohup localoptions localtraps
+setopt nohup
 
 for rcfile in ~/.zshrc.d/*
 do
