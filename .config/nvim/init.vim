@@ -27,16 +27,15 @@ Plug 'airblade/vim-gitgutter'
 " Status bar
 Plug 'itchyny/lightline.vim'
 
-" For base16-bright theme/colorscheme
+" For base16 themes/colorschemes
 Plug 'chriskempson/base16-vim'
 
 " Tabs
 Plug 'ap/vim-buftabline'
 
-" Telescope file finder / picker
-Plug 'nvim-lua/popup.nvim'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
+" fzf file finder / picker
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 
 " neovim language things
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -44,14 +43,20 @@ Plug 'neovim/nvim-lspconfig'
 
 " Nicer LSP UI
 Plug 'glepnir/lspsaga.nvim'
+
+" auto-completion with LSP
+Plug 'nvim-lua/completion-nvim'
 call plug#end()
+
+set ignorecase    " match any string case in search
+set smartcase     " smart case matching
 
 filetype plugin indent on
 syntax on
 
 " gfiles shortcut
-nnoremap <C-f> <cmd>Telescope find_files<cr>
-nnoremap <C-g> <cmd>Telescope git_files<cr>
+nnoremap <C-f> <cmd>Files<cr>
+nnoremap <C-g> <cmd>GFiles<cr>
 
 " always show the status bar
 set laststatus=2
@@ -246,9 +251,7 @@ local on_attach = function(client, bufnr)
   -- See `:help vim.lsp.*` for documentation on any of the below functions
   buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
   buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
-  buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
   buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
   buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
   buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
   buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
@@ -261,11 +264,17 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
   buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
   buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+  buf_set_keymap('n', 'K', '<Cmd>Lspsaga hover_doc<CR>', opts)
+  buf_set_keymap('n', '<C-k>', '<cmd>Lspsaga signature_help<CR>', opts)
+  buf_set_keymap('n', 'gh', '<cmd>Lspsaga lsp_finder<CR>', opts)
+  buf_set_keymap('n', '<C-j>', '<cmd>Lspsaga diagnostic_jump_next<CR>', opts)
 
+  require'completion'.on_attach(client, bufnr)
 end
 
 -- Use a loop to conveniently call 'setup' on multiple servers and
 -- map buffer local keybindings when the language server attaches
+-- npm install -g typescript typescript-language-server
 local servers = { "tsserver" }
 for _, lsp in ipairs(servers) do
   nvim_lsp[lsp].setup {
