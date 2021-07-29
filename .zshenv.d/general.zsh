@@ -7,7 +7,7 @@ export LESS="MRiX"
 
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh /usr/bin/lesspipe)"
 
-if [ "x$TERM" = "xalacritty" ]
+if [ "x$TERM" = "xalacritty" -o "x$TERM" = "xxterm-256color" ]
 then
     COLORTERM="truecolor"
 fi
