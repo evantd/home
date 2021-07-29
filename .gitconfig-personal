@@ -4,7 +4,7 @@
 [color]
 	ui = auto
 [core]
-	pager = delta
+	pager = delta --true-color always
 	excludesfile = ~/.gitignore
 [push]
 	default = simple
@@ -31,7 +31,7 @@
 [credential]
 	helper = store
 [interactive]
-	diffFilter = delta --color-only
+	diffFilter = delta --true-color always --color-only
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
@@ -43,6 +43,4 @@
 	ff = only
 [delta]
 	syntax-theme = base16-256
-	plus-style = syntax bold auto
-	minus-style = syntax bold auto
 
