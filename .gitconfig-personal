@@ -43,4 +43,7 @@
 	ff = only
 [delta]
 	syntax-theme = base16-256
+    line-numbers = true
+    side-by-side = true
+    word-diff-regex = [[:upper:]][[:lower:]]+|[[:lower:]]+|[[:upper:]]+|[[:digit:]]+|[[:punct:]]|[^[:space:]]
 
