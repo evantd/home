@@ -26,6 +26,7 @@
 	compactionHeuristic = true
 	algorithm = histogram
 	renames = copies
+    colorMoved = default
 [rerere]
 	enabled = true
 [credential]
@@ -44,6 +45,7 @@
 [delta]
 	syntax-theme = base16-256
     line-numbers = true
-    side-by-side = true
+    side-by-side = false
     word-diff-regex = [[:upper:]][[:lower:]]+|[[:lower:]]+|[[:upper:]]+|[[:digit:]]+|[[:punct:]]|[^[:space:]]
+    features = navigate
 
