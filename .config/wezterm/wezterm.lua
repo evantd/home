@@ -1,7 +1,7 @@
 local wezterm = require 'wezterm';
 return {
     color_scheme = "Chalk",
-    font = wezterm.font("Hack Nerd Font Mono"),
+    font = wezterm.font("Rec Mono Duotone"),
     font_size = 12.0,
     hyperlink_rules = {
         -- Linkify things that look like URLs
