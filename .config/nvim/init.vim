@@ -33,10 +33,6 @@ Plug 'chriskempson/base16-vim'
 " Tabs
 Plug 'ap/vim-buftabline'
 
-" fzf file finder / picker
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-
 " neovim language things
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'neovim/nvim-lspconfig'
