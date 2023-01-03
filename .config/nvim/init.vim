@@ -62,9 +62,10 @@ set t_Co=256
 set t_ut=
 let base16colorspace=256
 set bg=dark       " dark terminal background
-if filereadable(expand("~/.vimrc_background"))
-  let base16colorspace=256
-  source ~/.vimrc_background
+if exists('$BASE16_THEME')
+      \ && (!exists('g:colors_name') || g:colors_name != 'base16-$BASE16_THEME')
+    let base16colorspace=256
+    colorscheme base16-$BASE16_THEME
 endif
 " enable 24-bit truecolor
 if exists('+termguicolors')
