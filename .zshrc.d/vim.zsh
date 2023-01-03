@@ -1,6 +1,6 @@
 # .zshrc.d/vim.zsh # vim: set ft=zsh:
 
-export EDITOR=vim VISUAL=vim
+export EDITOR=nvim VISUAL=nvim
 bindkey -v # this should be covered by EDITOR, but sometimes isn't
 
 # let me backspace past where I entered insert mode
