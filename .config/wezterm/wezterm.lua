@@ -3,6 +3,7 @@ return {
     color_scheme = "Chalk",
     font = wezterm.font("Rec Mono Duotone"),
     font_size = 12.0,
+    term = "wezterm",
     hyperlink_rules = {
         -- Linkify things that look like URLs
         -- This is actually the default if you don't specify any hyperlink_rules
