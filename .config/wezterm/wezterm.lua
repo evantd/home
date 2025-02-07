@@ -27,7 +27,7 @@ return {
         -- Make jira ticket numbers clickable GNAVS-2465
         {
           regex = "\\b([A-Z]+-\\d+)\\b",
-          format = "https://bugs.indeed.com/browse/$1"
+          format = "https://indeed.atlassian.net/browse/$1"
         }
     }
 }
