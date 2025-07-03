@@ -1,5 +1,7 @@
 # .zshrc.d/prompt vim: set ft=zsh:
 
+builtin autoload -Uz add-zsh-hook
+
 function getZshrcGitCommit {
     git --git-dir ~/.git log -1 --format=format:%H -- .zshenv-personal .zshenv.d .zprofile-personal .zprofile.d .zshrc-personal .zshrc.d
 }
@@ -65,8 +67,7 @@ function update_prompt {
     PS1+="%{${pp[punct]}%}%#" # % for normal users, # for priveleged users
     PS1+="%{${pp[end]}%} " # return formatting to normal and end prompt with a space
 }
-typeset -ga precmd_functions
-precmd_functions+=update_prompt
+add-zsh-hook precmd update_prompt
 
 update_prompt
 export PS1

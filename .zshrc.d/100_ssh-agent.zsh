@@ -1,5 +1,7 @@
 # .zshrc.d/prompt vim: set ft=zsh:
 
+builtin autoload -Uz add-zsh-hook
+
 if [[ "$(uname -s)" == "Darwin" ]]; then
     # No plan for Darwin yet.
 else
@@ -8,7 +10,6 @@ else
         export SSH_AUTH_SOCK=$(find /tmp/ssh-* -user `whoami` -name agent\* -printf '%T@ %p\n' 2>/dev/null | sort -k 1nr | sed 's/^[^ ]* //' | head -n 1)
     }
 
-    typeset -ga precmd_functions
-    precmd_functions+=update_ssh_auth_sock
+    add-zsh-hook precmd update_ssh_auth_sock
 
 fi
