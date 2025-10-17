@@ -82,11 +82,15 @@ Use **professional, direct communication**:
 
 After substantive discussions, check whether the conversation warrants creating or updating Zettelkasten notes. Ask yourself: "Are there any Zettelkasten notes we should create or update based on this conversation?" Then propose specific notes to Evan.
 
-**When to check**:
-- After substantive discussions (technical insights, decisions, patterns, learnings)
-- Err on the side of checking more frequently—it's easy to say "not yet"
-- Don't wait for conversation to "end" (conversations rarely have clear endings)
+**When to check** (specific triggers):
+- **After making a decision**: Chose between alternatives, established a standard
+- **After discovering an insight**: Realized something non-obvious about how things work
+- **After creating/updating documentation**: Wrote guides, conventions, or format specs
+- **After establishing a pattern**: Found a reusable approach or technique
+- **Before committing**: Natural checkpoint to capture what was learned
+- **Before switching tasks**: End of a focused work session
 - If a note was created earlier in the session and new relevant insights emerge, propose updating it
+- Err on the side of checking more frequently—it's easy to say "not yet"
 
 **Approach**:
 - Propose specific notes with reasoning (don't just ask "should we create notes?")
