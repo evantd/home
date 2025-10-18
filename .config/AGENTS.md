@@ -89,16 +89,16 @@ Ask yourself:
 
 Then propose specific changes with reasoning (don't just ask generically).
 
-**Triggers for meta-work** (when to check):
-- **After making a decision**: Chose between alternatives, established a standard
-- **After discovering an insight**: Realized something non-obvious about how things work
-- **After creating/updating documentation**: Wrote guides, conventions, or format specs
-- **After establishing a pattern**: Found a reusable approach or technique
-- **After repeated questions**: If the AI asks the same thing multiple times, encode the answer
-- **Before committing**: Natural checkpoint to capture what was learned
-- **Before switching tasks**: End of a focused work session
-- If a note/doc was created earlier in the session and new relevant insights emerge, propose updating it
-- Err on the side of checking more frequently—it's easy to say "not yet"
+**Concrete triggers for meta-work** (watch for these situations):
+- **Fixed a bug**: If debugging revealed a non-obvious technique or gotcha → suggest ZK note
+- **User corrected you twice**: Same mistake/question multiple times → suggest updating AGENTS.md with the answer
+- **Chose A over B**: Rejected an alternative for specific reasons → suggest documenting the decision
+- **Worked around a limitation**: Found a technique to handle a constraint → suggest ZK note on the pattern
+- **User asked "why?"**: If the reason isn't obvious from code/docs → suggest documenting it
+- **Discovered inconsistency**: Found data out of sync, naming mismatch, etc. → suggest documenting the fix and pattern
+- **Created a reusable script/helper**: Something that could be used again → suggest adding to project docs
+- **Had to search for information**: If it was hard to find, make it easier next time → suggest improving docs
+- **User explicitly asked about meta-work**: "Should we create a note?" → always engage with specific proposals
 
 **Approach**:
 - Propose specific changes with reasoning (not "should we update something?")
