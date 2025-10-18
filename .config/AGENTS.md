@@ -75,35 +75,40 @@ Use **professional, direct communication**:
 - Show your reasoning when helpful
 - Ask clarifying questions when needed
 
-## Zettelkasten Notes
+## Meta-Work: When to Update Documentation and Notes
 
-**Location**: ~/indeed/library/zk/  
-**Format guide**: ~/indeed/library/ZETTELKASTEN.md
+After substantive discussions, check whether the conversation warrants meta-work:
+- **Zettelkasten notes** (~/indeed/library/zk/) - capturing insights and patterns
+- **AGENTS.md files** (global ~/.config or project-local) - updating AI guidelines
+- **Project documentation** (README, setup guides, etc.) - clarifying workflows
 
-After substantive discussions, check whether the conversation warrants creating or updating Zettelkasten notes. Ask yourself: "Are there any Zettelkasten notes we should create or update based on this conversation?" Then propose specific notes to Evan.
+Ask yourself:
+- "Are there any Zettelkasten notes we should create or update?"
+- "Should we update the AGENTS.md guidelines based on what we learned?"
+- "Does project documentation need updates to reflect new conventions?"
 
-**When to check** (specific triggers):
+Then propose specific changes with reasoning (don't just ask generically).
+
+**Triggers for meta-work** (when to check):
 - **After making a decision**: Chose between alternatives, established a standard
 - **After discovering an insight**: Realized something non-obvious about how things work
 - **After creating/updating documentation**: Wrote guides, conventions, or format specs
 - **After establishing a pattern**: Found a reusable approach or technique
+- **After repeated questions**: If the AI asks the same thing multiple times, encode the answer
 - **Before committing**: Natural checkpoint to capture what was learned
 - **Before switching tasks**: End of a focused work session
-- If a note was created earlier in the session and new relevant insights emerge, propose updating it
+- If a note/doc was created earlier in the session and new relevant insights emerge, propose updating it
 - Err on the side of checking more frequently—it's easy to say "not yet"
 
 **Approach**:
-- Propose specific notes with reasoning (don't just ask "should we create notes?")
-- Err on the side of suggesting more notes rather than fewer
+- Propose specific changes with reasoning (not "should we update something?")
+- Err on the side of suggesting more updates rather than fewer
 - Multiple smaller notes are better than one large note
-- Update existing notes when discussion adds depth to concepts already captured
+- Update existing content when discussion adds depth to concepts already captured
 
-**What qualifies as note-worthy** (signal vs. noise):
-- ✅ **Reusable patterns** that generalize beyond this instance (e.g., "enforce consistency at write-time")
-- ✅ **Non-obvious insights** even if they seem obvious now (context decays in 6 months)
-- ✅ **Decisions with rationale** explaining why alternatives were rejected
-- ✅ **Techniques that worked** after trying multiple approaches
-- ❌ **One-time actions** like "renamed a specific script"
-- ❌ **Common knowledge** that's well-documented elsewhere
-- ❌ **Trivial observations** without broader applicability
-- When in doubt: Ask "Would this help me (or an AI) solve a similar problem 6 months from now?"
+## Zettelkasten Notes
+
+**Location**: ~/indeed/library/zk/  
+**Format & criteria**: ~/indeed/library/ZETTELKASTEN.md
+
+See ZETTELKASTEN.md for what qualifies as note-worthy and how to structure notes.
