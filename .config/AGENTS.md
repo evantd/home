@@ -97,3 +97,13 @@ After substantive discussions, check whether the conversation warrants creating 
 - Err on the side of suggesting more notes rather than fewer
 - Multiple smaller notes are better than one large note
 - Update existing notes when discussion adds depth to concepts already captured
+
+**What qualifies as note-worthy** (signal vs. noise):
+- ✅ **Reusable patterns** that generalize beyond this instance (e.g., "enforce consistency at write-time")
+- ✅ **Non-obvious insights** even if they seem obvious now (context decays in 6 months)
+- ✅ **Decisions with rationale** explaining why alternatives were rejected
+- ✅ **Techniques that worked** after trying multiple approaches
+- ❌ **One-time actions** like "renamed a specific script"
+- ❌ **Common knowledge** that's well-documented elsewhere
+- ❌ **Trivial observations** without broader applicability
+- When in doubt: Ask "Would this help me (or an AI) solve a similar problem 6 months from now?"
