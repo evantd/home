@@ -77,32 +77,58 @@ Use **professional, direct communication**:
 
 ## Meta-Work: When to Update Documentation and Notes
 
-After substantive discussions, check whether the conversation warrants meta-work:
+**CRITICAL**: Proactively suggest meta-work. Don't wait for user to ask "should we create a note?"
+
+### Types of Meta-Work
+
 - **Zettelkasten notes** (~/indeed/library/zk/) - capturing insights and patterns
-- **AGENTS.md files** (global ~/.config or project-local) - updating AI guidelines
+- **AGENTS.md files** (global ~/.config or project-local) - updating AI guidelines  
 - **Project documentation** (README, setup guides, etc.) - clarifying workflows
 
-Ask yourself:
-- "Are there any Zettelkasten notes we should create or update?"
-- "Should we update the AGENTS.md guidelines based on what we learned?"
-- "Does project documentation need updates to reflect new conventions?"
+### When to Suggest Meta-Work
 
-Then propose specific changes with reasoning (don't just ask generically).
+**IMMEDIATELY suggest when you observe:**
 
-**Concrete triggers for meta-work** (watch for these situations):
-- **Fixed a bug**: If debugging revealed a non-obvious technique or gotcha → suggest ZK note
-- **User corrected you twice**: Same mistake/question multiple times → suggest updating AGENTS.md with the answer
-- **Chose A over B**: Rejected an alternative for specific reasons → suggest documenting the decision
-- **Worked around a limitation**: Found a technique to handle a constraint → suggest ZK note on the pattern
-- **User asked "why?"**: If the reason isn't obvious from code/docs → suggest documenting it
-- **Discovered inconsistency**: Found data out of sync, naming mismatch, etc. → suggest documenting the fix and pattern
-- **Created a reusable script/helper**: Something that could be used again → suggest adding to project docs
-- **Had to search for information**: If it was hard to find, make it easier next time → suggest improving docs
-- **User explicitly asked about meta-work**: "Should we create a note?" → always engage with specific proposals
+1. **User shares insight connecting ideas** → "This connects X and Y - should create zettel about [pattern]"
+   - Example: User responds to article with personal reflection → that's a zettel
+
+2. **Fixed a bug using non-obvious technique** → "The [technique] we used is worth documenting"
+   - Example: Had to exclude BLOB columns from queries → update AGENTS.md with pattern
+
+3. **User corrected you twice about same thing** → "I keep missing [X] - should add to AGENTS.md"
+   - Example: Used wrong column name twice → document correct schema
+
+4. **Created reusable script/workflow** → "This could help again - should document in [location]"
+   - Example: Created mark_as_read.py → update AGENTS.md with usage
+
+5. **Made a choice between options** → "We chose [A] over [B] because [reason] - worth documenting?"
+   - Example: Decided to check duplicates first → add to workflow section
+
+6. **User asked "why?" about something not in docs** → "Answer should be documented in [location]"
+
+7. **Found information after searching** → "This was hard to find - should make it easier next time"
+
+8. **Discovered inconsistency or gotcha** → "This could trip us up again - worth noting?"
+
+### How to Suggest
+
+**DO**: Make specific proposals with concrete titles/locations
+- ✅ "Should create zettel: '20251018-tool-switching-full-commitment.md' about your insight connecting Julia's helix experience to your fish/zsh situation"
+- ✅ "Update AGENTS.md Database section with the 'filepath not file_path' gotcha and SELECT column pattern"
+
+**DON'T**: Ask vague questions
+- ❌ "Should we update documentation?"
+- ❌ "Are there any notes to create?"
+
+### Timing
+
+**Suggest immediately when you observe the pattern** - don't wait for "end of discussion" or other checkpoints.
+
+The moment you notice one of the triggers above (user shares insight, you make same mistake twice, create a script, etc.), suggest the specific meta-work right then.
 
 **Approach**:
-- Propose specific changes with reasoning (not "should we update something?")
-- Err on the side of suggesting more updates rather than fewer
+- Suggest specific changes with titles and reasoning
+- Err on the side of suggesting more rather than fewer
 - Multiple smaller notes are better than one large note
 - Update existing content when discussion adds depth to concepts already captured
 
