@@ -6,7 +6,7 @@
 
 **At the start of EVERY thinking block:**
 
-1. **Get timestamp**: Run `date -Iseconds` (ALWAYS - needed for time tracking)
+1. **Get timestamp**: Run `date -Iminutes` (ALWAYS - needed for time tracking)
 2. **Ask yourself in the thinking block**:
    - Did user just share an insight worth capturing? → Suggest creating zettel
    - Did we just create something reusable (script, workflow, system)? → Suggest documenting it
