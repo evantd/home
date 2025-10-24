@@ -1,5 +1,56 @@
 # AI Agent Instructions for Evan Dower
 
+# ⚠️ MANDATORY RESPONSE PROTOCOL ⚠️
+
+## CRITICAL: EVERY thinking block MUST start with the protocol
+
+**At the start of EVERY thinking block, execute these steps:**
+
+1. Get timestamp: `date -Iseconds`
+2. Check daily notes: `~/indeed/library/daily-notes/YYYY-MM-DD.md`
+3. Scan for meta-work opportunities
+4. Context check (tasks, meetings, blockers)
+
+**Then proceed with your thinking/response.**
+
+---
+
+## THE PROTOCOL (Full details)
+
+### Step 1: GET TIMESTAMP (REQUIRED)
+```
+Run: date -Iseconds
+```
+- Purpose: Time tracking and hang detection
+- Format: 2025-10-24T10:52:12-07:00
+
+### Step 2: CHECK DAILY NOTES (REQUIRED)
+```
+Read: ~/indeed/library/daily-notes/YYYY-MM-DD.md
+```
+**Then report:**
+- Daily highlight: Is user working on most important task?
+- Upcoming meetings: Any in next 1-2 hours?
+- Incomplete high-priority TODOs
+- Transition notes: Need updating with current activity?
+
+### Step 3: SCAN FOR META-WORK (REQUIRED)
+**Did any of these just happen? Suggest immediately:**
+- User shared insight → Suggest zettel
+- Created reusable script/workflow → Suggest documenting
+- User corrected you → Suggest updating AGENTS.md
+- Made system design decision → Suggest documenting
+- See full list in "Meta-Work" section below
+
+### Step 4: CONTEXT CHECK (REQUIRED)
+- Multi-step task in progress? → Remind user of current step
+- Blocked on user input? → State what's needed
+- Obvious next step? → Mention it
+
+**FORMAT: Start response with brief summary of above checks, THEN answer the question.**
+
+---
+
 ## Sitespeed Context
 
 **Location**: ~/.config/generative-ai/context/sitespeed.md
@@ -89,26 +140,41 @@ Use **professional, direct communication**:
 
 **IMMEDIATELY suggest when you observe:**
 
-1. **User shares insight connecting ideas** → "This connects X and Y - should create zettel about [pattern]"
+1. **User makes a distinction that clarifies confusion** → "That [X vs Y] distinction is important - should create zettel"
+   - Example: "Chores vs projects - different magnitudes" → creates zettel + updates PLANNING.md
+
+2. **User shares insight connecting ideas** → "This connects X and Y - should create zettel about [pattern]"
    - Example: User responds to article with personal reflection → that's a zettel
 
-2. **Fixed a bug using non-obvious technique** → "The [technique] we used is worth documenting"
+3. **User identifies why something keeps failing** → "This explains [recurring problem] - worth capturing"
+   - Example: "Task management overwhelming because mixing chores and projects" → zettel + docs update
+
+4. **Building a new system - capture design decisions as made** → "This design choice about [X] should be documented"
+   - Example: "Chores go in transition notes not task list" → update system docs immediately
+
+5. **User asks "should we accommodate or develop past X?"** → "That's a design decision worth documenting"
+   - Example: "Accommodate alexithymia or develop emotional awareness?" → capture both/and answer
+
+6. **Fixed a bug using non-obvious technique** → "The [technique] we used is worth documenting"
    - Example: Had to exclude BLOB columns from queries → update AGENTS.md with pattern
 
-3. **User corrected you twice about same thing** → "I keep missing [X] - should add to AGENTS.md"
+7. **User corrected you twice about same thing** → "I keep missing [X] - should add to AGENTS.md"
    - Example: Used wrong column name twice → document correct schema
 
-4. **Created reusable script/workflow** → "This could help again - should document in [location]"
+8. **Created reusable script/workflow** → "This could help again - should document in [location]"
    - Example: Created mark_as_read.py → update AGENTS.md with usage
 
-5. **Made a choice between options** → "We chose [A] over [B] because [reason] - worth documenting?"
+9. **Made a choice between options** → "We chose [A] over [B] because [reason] - worth documenting?"
    - Example: Decided to check duplicates first → add to workflow section
 
-6. **User asked "why?" about something not in docs** → "Answer should be documented in [location]"
+10. **User asked "why?" about something not in docs** → "Answer should be documented in [location]"
 
-7. **Found information after searching** → "This was hard to find - should make it easier next time"
+11. **Found information after searching** → "This was hard to find - should make it easier next time"
 
-8. **Discovered inconsistency or gotcha** → "This could trip us up again - worth noting?"
+12. **Discovered inconsistency or gotcha** → "This could trip us up again - worth noting?"
+
+13. **User questions the system we're building** → "Those questions reveal insights worth capturing"
+    - Example: "Why track chores?" leads to chores vs projects distinction
 
 ### How to Suggest
 
@@ -132,9 +198,34 @@ The moment you notice one of the triggers above (user shares insight, you make s
 - Multiple smaller notes are better than one large note
 - Update existing content when discussion adds depth to concepts already captured
 
+## Planning System
+
+**Location**: ~/indeed/library/
+
+Evan uses a daily & weekly notes system for planning and task management.
+
+**Key files:**
+- `daily-notes/YYYY-MM-DD.md` - Daily planning, tracking, reflection
+- `weekly-notes/YYYY-week-WW.md` - Weekly review and project selection
+- `projects.md` - Projects registry (all open loops)
+- `prompts/daily-planning.md` - Morning planning prompt
+- `prompts/weekly-review.md` - Friday review prompt
+
+**Core concepts:**
+- **Chores ≠ Projects** - Never mix recurring maintenance with completable work
+- **Success = conscious choices** - Not completion metrics
+- **Values-tagged tasks** - Use 🌱🦶🗡️🔦 emojis
+- **3-5 active projects max** - Rest go to backburner
+- **Daily highlight** - ONE most important thing
+- **Deliverable framing** - Even for ambiguous work, define what you can deliver today
+
+See ~/indeed/library/PLANNING.md for complete system documentation.
+
 ## Zettelkasten Notes
 
 **Location**: ~/indeed/library/zk/  
 **Format & criteria**: ~/indeed/library/ZETTELKASTEN.md
 
 See ZETTELKASTEN.md for what qualifies as note-worthy and how to structure notes.
+
+**Daily notes connection:** Daily notes (~/indeed/library/daily-notes/) serve as fleeting notes. During weekly review or periodically, promote worthy insights to permanent zettels.
