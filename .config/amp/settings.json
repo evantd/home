@@ -1,0 +1,39 @@
+{
+	"amp.commands.allowlist": [
+		"git"
+	],
+	"amp.permissions": [
+		{
+			"tool": "Bash",
+			"matches": {
+				"cmd": "git commit *"
+			},
+			"action": "allow"
+		},
+		{
+			"tool": "Bash",
+			"matches": {
+				"cmd": "./update-pdf.sh",
+				"cwd": "/Users/edower/resume"
+			},
+			"action": "allow"
+		},
+		{
+			"tool": "Bash",
+			"matches": {
+				"cmd": "git add *"
+			},
+			"action": "allow"
+		}
+	],
+	"amp.mcpServers": {
+		"playwright": {
+			"url":       "http://localhost:64661/sse#playwright",
+			"transport": "sse"
+		},
+		"atlassian": {"url": "http://localhost:41563/sse#atlassian", "type": "sse"},
+		"gitlab":    {"url": "http://localhost:37039/sse#gitlab", "type": "sse"},
+		"glean":     {"url": "http://localhost:27777/sse#glean", "type": "sse"}
+	},
+	"amp.dangerouslyAllowAll": true
+}
