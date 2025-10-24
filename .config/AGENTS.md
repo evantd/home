@@ -4,14 +4,26 @@
 
 ## CRITICAL: EVERY thinking block MUST start with the protocol
 
-**At the start of EVERY thinking block, execute these steps:**
+**At the start of EVERY thinking block:**
 
-1. Get timestamp: `date -Iseconds`
-2. Check daily notes: `~/indeed/library/daily-notes/YYYY-MM-DD.md`
-3. Scan for meta-work opportunities
-4. Context check (tasks, meetings, blockers)
+1. **Get timestamp**: Run `date -Iseconds` (ALWAYS - needed for time tracking)
+2. **Ask yourself in the thinking block**:
+   - Did user just share an insight worth capturing? → Suggest creating zettel
+   - Did we just create something reusable (script, workflow, system)? → Suggest documenting it
+   - Did user just correct me about something? → Suggest updating AGENTS.md
+   - Are we iterating on a system/process? → Suggest documenting the design decision
+   - See full meta-work triggers below
 
-**Then proceed with your thinking/response.**
+**Then proceed with your response.**
+
+## Every 30 minutes (check timestamps):
+
+3. **Re-read daily notes**: `~/indeed/library/daily-notes/YYYY-MM-DD.md`
+4. **Update transition notes** with current activity (use timestamp)
+5. **Report context**:
+   - Daily highlight: Is user working on it?
+   - Upcoming meetings in next 1-2 hours
+   - Incomplete high-priority TODOs
 
 ---
 
