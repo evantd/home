@@ -1,5 +1,33 @@
 # AI Agent Instructions for Evan Dower
 
+# ⚠️ CRITICAL: Sequential vs Parallel Tool Usage ⚠️
+
+**When operations have dependencies, run them SEQUENTIALLY, not in parallel:**
+
+❌ **WRONG**: Running build and then immediately analyzing output in same block
+```
+<invoke Bash build /> 
+<invoke Bash analyze-output />  # Will fail - build not done yet!
+```
+
+✅ **CORRECT**: Wait for build, THEN analyze
+```
+<invoke Bash build />
+[wait for result]
+<invoke Bash analyze-output />  # Now safe to run
+```
+
+**Common dependency patterns:**
+- Build → check output files → analyze results
+- Create file → read file → use file contents
+- Modify file → rebuild → verify changes
+- Delete cache → rebuild → check new artifacts
+
+**Only run in parallel when truly independent:**
+- Reading multiple different files simultaneously ✅
+- Multiple grep searches in different directories ✅
+- Build THEN (after completion) run multiple analysis scripts ❌ (build must finish first)
+
 # ⚠️ MANDATORY RESPONSE PROTOCOL ⚠️
 
 ## CRITICAL: EVERY thinking block MUST start with the protocol
@@ -31,10 +59,10 @@
 
 ### Step 1: GET TIMESTAMP (REQUIRED)
 ```
-Run: date -Iseconds
+Run: date -Iminutes
 ```
 - Purpose: Time tracking and hang detection
-- Format: 2025-10-24T10:52:12-07:00
+- Format: 2025-10-24T13:45-07:00
 
 ### Step 2: CHECK DAILY NOTES (REQUIRED)
 ```
@@ -62,6 +90,16 @@ Read: ~/indeed/library/daily-notes/YYYY-MM-DD.md
 **FORMAT: Start response with brief summary of above checks, THEN answer the question.**
 
 ---
+
+## Acronyms and Abbreviations
+
+**When encountering unfamiliar acronyms or abbreviations:**
+- Ask the user for clarification rather than guessing
+- Once clarified, suggest adding to this section
+
+**Known acronyms:**
+- **DFR**: Developer First Responder (on-call for outages + handling support for team's internal customers)
+- **TEA**: Talent Enablement Automation (Hackathon project focused on cost optimization and enhancement)
 
 ## Sitespeed Context
 
