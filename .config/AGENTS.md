@@ -31,19 +31,124 @@
 
 # ⚠️ MANDATORY RESPONSE PROTOCOL ⚠️
 
-## CRITICAL: EVERY thinking block MUST start with the protocol
+## 🚨 FIRST ACTION IN EVERY THINKING BLOCK 🚨
 
-**At the start of EVERY thinking block:**
+**CRITICAL**: Every thinking block MUST begin with this exact text:
 
-1. **Get timestamp**: Run `date -Iminutes` (ALWAYS - needed for time tracking)
-2. **Ask yourself in the thinking block**:
-   - Did user just share an insight worth capturing? → Suggest creating zettel
-   - Did we just create something reusable (script, workflow, system)? → Suggest documenting it
-   - Did user just correct me about something? → Suggest updating AGENTS.md
-   - Are we iterating on a system/process? → Suggest documenting the design decision
-   - See full meta-work triggers below
+```
+Before dealing with the user's request, I need to:
+1. Get timestamp with `date -Iminutes`
+2. Update transition notes in today's daily note with timestamped activity
+3. Check for meta-work triggers (user shared insight? created reusable tool? corrected me?)
+4. If 30+ minutes since last timestamp: re-read daily notes and report context
+```
 
-**Then proceed with your response.**
+**Then actually execute those steps before proceeding with the user's request.**
+
+**Why**: Conversation context lacks wall-clock timestamps. Running `date -Iminutes` and updating transition notes at the start of every thinking block is how we track actual elapsed time and maintain awareness of the day's flow.
+
+---
+
+## Examples of Proper Thinking Block Start
+
+### Example 1: Simple Request (No Meta-Work, Within 30 Minutes)
+
+```
+<thinking>
+Before dealing with the user's request, I need to:
+1. Get timestamp with `date -Iminutes`
+2. Update transition notes in today's daily note with timestamped activity
+3. Check for meta-work triggers (user shared insight? created reusable tool? corrected me?)
+4. If 30+ minutes since last timestamp: re-read daily notes and report context
+
+[runs date -Iminutes, gets 2025-10-29T14:30-07:00]
+
+Update transition notes:
+[adds "14:30 - Helping with code review" to transition notes section]
+
+Last timestamp was 14:15, so 15 minutes elapsed - not yet 30min check.
+
+Meta-work check: Just a straightforward code review request, no meta-work triggers.
+
+Now proceed with the code review...
+</thinking>
+```
+
+### Example 2: Meta-Work Trigger (User Corrected Me)
+
+```
+<thinking>
+Before dealing with the user's request, I need to:
+1. Get timestamp with `date -Iminutes`
+2. Update transition notes in today's daily note with timestamped activity
+3. Check for meta-work triggers (user shared insight? created reusable tool? corrected me?)
+4. If 30+ minutes since last timestamp: re-read daily notes and report context
+
+[runs date -Iminutes, gets 2025-10-29T10:15-07:00]
+
+Update transition notes:
+[adds "10:15 - Database query work, user corrected column name" to transition notes section]
+
+Last timestamp was 09:50, so 25 minutes elapsed - not yet 30min check.
+
+Meta-work check: User just corrected me about using 'filepath' not 'file_path' → should suggest updating AGENTS.md Database section with this gotcha.
+
+Now proceed with fixing the query AND suggest the AGENTS.md update...
+</thinking>
+```
+
+### Example 3: 30-Minute Check Triggered
+
+```
+<thinking>
+Before dealing with the user's request, I need to:
+1. Get timestamp with `date -Iminutes`
+2. Update transition notes in today's daily note with timestamped activity
+3. Check for meta-work triggers (user shared insight? created reusable tool? corrected me?)
+4. If 30+ minutes since last timestamp: re-read daily notes and report context
+
+[runs date -Iminutes, gets 2025-10-29T15:45-07:00]
+
+Update transition notes:
+[adds "15:45 - Continuing feature implementation" to transition notes section]
+
+Last timestamp was 15:10, so 35 minutes elapsed - need to do 30min check.
+
+[reads daily note: ~/indeed/library/daily-notes/2025-10-29.md]
+
+Context check:
+- Daily highlight: Values exploration - user hasn't worked on this yet
+- Next meeting: Spiritual Group at 15:30 - ALREADY STARTED! Should be there now
+- High-priority TODOs: Kindergarten pickup at 14:30 (already done), perf review (not started)
+
+Meta-work check: No new triggers in this request.
+
+CRITICAL: User should be at Spiritual Group right now. Mention this before responding to request...
+</thinking>
+```
+
+### Example 4: User Shared Insight Worth Capturing
+
+```
+<thinking>
+Before dealing with the user's request, I need to:
+1. Get timestamp with `date -Iminutes`
+2. Update transition notes in today's daily note with timestamped activity
+3. Check for meta-work triggers (user shared insight? created reusable tool? corrected me?)
+4. If 30+ minutes since last timestamp: re-read daily notes and report context
+
+[runs date -Iminutes, gets 2025-10-29T11:20-07:00]
+
+Update transition notes:
+[adds "11:20 - Discussion about chores vs projects distinction" to transition notes section]
+
+Last timestamp was 11:05, so 15 minutes elapsed - not yet 30min check.
+
+Meta-work check: User just explained that chores and projects are fundamentally different magnitudes of work, and mixing them was causing overwhelm. This is an important insight about task management → should suggest creating zettel: "20251029-chores-vs-projects-magnitude.md" and updating PLANNING.md to clarify this distinction.
+
+Now respond to their question AND suggest the meta-work...
+</thinking>
+```
 
 ## Every 30 minutes (check timestamps):
 
@@ -62,7 +167,8 @@
 ```
 Run: date -Iminutes
 ```
-- Purpose: Time tracking and hang detection
+- **Purpose**: Wall-clock time tracking and hang detection
+- **Why EVERY thinking block**: Conversation context lacks wall-clock timestamps. Recency in the conversation does not imply recency in real time. Running `date -Iminutes` at the start of every thinking block is how we track actual elapsed time for the 30-minute check.
 - Format: 2025-10-24T13:45-07:00
 
 ### Step 2: CHECK DAILY NOTES (REQUIRED)
