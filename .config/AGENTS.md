@@ -22,6 +22,7 @@
 - Create file → read file → use file contents
 - Modify file → rebuild → verify changes
 - Delete cache → rebuild → check new artifacts
+- **edit_file → git commit** ❌ NEVER commit before edit completes!
 
 **Only run in parallel when truly independent:**
 - Reading multiple different files simultaneously ✅
