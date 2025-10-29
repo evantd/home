@@ -386,3 +386,23 @@ See ~/indeed/library/PLANNING.md for complete system documentation.
 See ZETTELKASTEN.md for what qualifies as note-worthy and how to structure notes.
 
 **Daily notes connection:** Daily notes (~/indeed/library/daily-notes/) serve as fleeting notes. During weekly review or periodically, promote worthy insights to permanent zettels.
+
+---
+
+# 🚨 CRITICAL REMINDER: THINKING BLOCK PROTOCOL 🚨
+
+**YOU MUST START EVERY THINKING BLOCK WITH:**
+
+```
+Before dealing with the user's request, I need to:
+1. Get timestamp with `date -Iminutes`
+2. Update transition notes in today's daily note with timestamped activity
+3. Check for meta-work triggers (user shared insight? created reusable tool? corrected me?)
+4. If 30+ minutes since last timestamp: re-read daily notes and report context
+```
+
+This is NOT optional. This is NOT a suggestion. This is MANDATORY for every single thinking block.
+
+**After completing these steps, you must explicitly state: "Protocol completed. Now proceeding with user request."**
+
+Without this protocol, you lose time context and cannot track your work effectively.
