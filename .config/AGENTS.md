@@ -42,6 +42,12 @@ Then execute these steps and confirm: "Protocol completed. Now proceeding with u
 - Delete cache → rebuild → check new artifacts
 - **edit_file → git commit** ❌ NEVER commit before edit completes!
 
+**Git staging rules:**
+- ❌ **NEVER use `git add -A`** - it stages unintended files (.serena/, test logs, etc.)
+  - **ESPECIALLY CRITICAL** in home directory (~/.config, ~/indeed/library) - many untracked files expected
+- ✅ **Always explicitly stage files**: `git add file1.ts file2.ts` or `git add src/specific/path/`
+- ✅ Use `git status` first to see what would be staged
+
 **Only run in parallel when truly independent:**
 - Reading multiple different files simultaneously ✅
 - Multiple grep searches in different directories ✅
@@ -65,6 +71,8 @@ Before dealing with the user's request, I need to:
 
 **Why**: Conversation context lacks wall-clock timestamps. Running `date -Iminutes` and updating transition notes at the start of every thinking block is how we track actual elapsed time and maintain awareness of the day's flow.
 
+**CRITICAL**: Transition notes MUST be in chronological order. When adding a new entry, check existing timestamps and insert at the correct position, not just at the end.
+
 ---
 
 ## Examples of Proper Thinking Block Start
@@ -82,7 +90,7 @@ Before dealing with the user's request, I need to:
 [runs date -Iminutes, gets 2025-10-29T14:30-07:00]
 
 Update transition notes:
-[adds "14:30 - Helping with code review" to transition notes section]
+[checks existing timestamps, inserts "14:30 - Helping with code review" in chronological order after 14:15 entry]
 
 Last timestamp was 14:15, so 15 minutes elapsed - not yet 30min check.
 
@@ -135,7 +143,7 @@ Last timestamp was 15:10, so 35 minutes elapsed - need to do 30min check.
 [reads daily note: ~/indeed/library/daily-notes/2025-10-29.md]
 
 Context check:
-- Daily highlight: Values exploration - user hasn't worked on this yet
+- Most Important Task (MIT): Values exploration - user hasn't worked on this yet
 - Next meeting: Spiritual Group at 15:30 - ALREADY STARTED! Should be there now
 - High-priority TODOs: Kindergarten pickup at 14:30 (already done), perf review (not started)
 
@@ -173,7 +181,7 @@ Now respond to their question AND suggest the meta-work...
 3. **Re-read daily notes**: `~/indeed/library/daily-notes/YYYY-MM-DD.md`
 4. **Update transition notes** with current activity (use timestamp)
 5. **Report context**:
-   - Daily highlight: Is user working on it?
+   - Most Important Task (MIT): Is user working on it?
    - Upcoming meetings in next 1-2 hours
    - Incomplete high-priority TODOs
 
@@ -194,7 +202,7 @@ Run: date -Iminutes
 Read: ~/indeed/library/daily-notes/YYYY-MM-DD.md
 ```
 **Then report:**
-- Daily highlight: Is user working on most important task?
+- Most Important Task (MIT): Is user working on it?
 - Upcoming meetings: Any in next 1-2 hours?
 - Incomplete high-priority TODOs
 - Transition notes: Need updating with current activity?
@@ -223,8 +231,23 @@ Read: ~/indeed/library/daily-notes/YYYY-MM-DD.md
 - Once clarified, suggest adding to this section
 
 **Known acronyms:**
+- **CORGI**: Cross-Organizational Initiative
 - **DFR**: Developer First Responder (on-call for outages + handling support for team's internal customers)
+- **PTL**: Progress Through Level (career progression metric)
 - **TEA**: Talent Enablement Automation (Hackathon project focused on cost optimization and enhancement)
+
+## Mosaic Platform Context
+
+**Mosaic** is a micro-frontend platform owned by Evan's team that enables modular UI components across Indeed's jobseeker surfaces.
+
+- **Team**: Mosaic Team (Evan, Andrew Soldini, Ryan Parker, Chris Barretto)
+- **Key repos**: `frontend/mosaic-*`, `frontend/globalnav-*`
+- **Primary projects**: 
+  - IFL 7 migration (React 18 upgrade across platform)
+  - GlobalNav infrastructure (header/footer)
+  - Mosaic Provider Modules (MPM) - micro-frontend deployment system
+- **Documentation**: [Confluence MAP space](https://indeed.atlassian.net/wiki/spaces/MAP/)
+- **Slack channels**: #mosaic (public), #mosaic-team (private), #global-nav
 
 ## Sitespeed Context
 
@@ -391,7 +414,7 @@ Evan uses a daily & weekly notes system for planning and task management.
 - **Success = conscious choices** - Not completion metrics
 - **Values-tagged tasks** - Use 🌱🦶🗡️🔦 emojis
 - **3-5 active projects max** - Rest go to backburner
-- **Daily highlight** - ONE most important thing
+- **Most Important Task (MIT)** - ONE most important thing each day
 - **Deliverable framing** - Even for ambiguous work, define what you can deliver today
 
 See ~/indeed/library/PLANNING.md for complete system documentation.
@@ -406,6 +429,28 @@ See ZETTELKASTEN.md for what qualifies as note-worthy and how to structure notes
 **Daily notes connection:** Daily notes (~/indeed/library/daily-notes/) serve as fleeting notes. During weekly review or periodically, promote worthy insights to permanent zettels.
 
 ---
+
+## Conversation Scoping & Task Isolation
+
+**Principle**: One conversation = One specific goal. Avoid long-running "kitchen sink" threads.
+
+**When a task is completed or the user changes focus:**
+1. **Do NOT** simply pivot to the new task in the current thread.
+2. **Suggest** starting a new conversation.
+3. **Offer** a prompt or context summary for the new conversation if helpful.
+
+**Why?**
+- Prevents context pollution (old code/errors confusing new tasks)
+- Keeps thinking focused and single-threaded
+- Makes history easier to search later
+- Reduces token costs and latency
+
+**Example interaction:**
+User: "Okay, that bug is fixed. Now let's refactor the API."
+Agent: "Great. Since we're shifting context from debugging to refactoring, I recommend starting a new conversation to keep the context clean.
+
+Here is a prompt you can use to kick it off:
+'I need to refactor the API. We just fixed [Bug X] in [Conversation Link], so the codebase is stable. Please review [File A] and [File B] to start.'"
 
 ## Experimental Methodology for AI Behavior Problems
 
@@ -448,6 +493,167 @@ Good for: Persistent problems, unclear root cause, high-stakes behavior, reusabl
 Not needed for: One-off issues, well-understood problems, low-impact behaviors
 
 **Example**: ~/indeed/library/PROTOCOL-ADHERENCE-EXPERIMENTS.md documents systematic approach to improving timestamp protocol adherence
+
+---
+
+## File Editing Best Practices
+
+**Prefer built-in editing tools over shell commands:**
+
+- ✅ **Use `edit_file` tool** for making targeted edits to existing files
+- ✅ **Use `create_file` tool** for creating new files or complete rewrites
+- ❌ **Avoid `sed`** - platform-specific syntax (macOS requires `sed -i ''`, Linux uses `sed -i`)
+- ❌ **Avoid `awk`, `perl -i`** - harder to debug, platform differences
+
+**Why**: The `edit_file` tool is cross-platform, provides clear diffs, and has built-in safety checks.
+
+**Example - WRONG**:
+```bash
+sed -i.bak 's/oldtext/newtext/g' file.ts  # Creates .bak files, platform-specific
+```
+
+**Example - CORRECT**:
+```
+edit_file(path="file.ts", old_str="oldtext", new_str="newtext", replace_all=true)
+```
+
+## Issue Tracking with bd (beads)
+
+**IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
+
+### Why bd?
+
+- Dependency-aware: Track blockers and relationships between issues
+- Git-friendly: Auto-syncs to JSONL for version control
+- Agent-optimized: JSON output, ready work detection, discovered-from links
+- Prevents duplicate tracking systems and confusion
+
+### Quick Start
+
+**Check for ready work:**
+```bash
+bd ready --json
+```
+
+**Create new issues:**
+```bash
+bd create "Issue title" -t bug|feature|task -p 0-4 --json
+bd create "Issue title" -p 1 --deps discovered-from:bd-123 --json
+```
+
+**Claim and update:**
+```bash
+bd update bd-42 --status in_progress --json
+bd update bd-42 --priority 1 --json
+```
+
+**Complete work:**
+```bash
+bd close bd-42 --reason "Completed" --json
+```
+
+### Issue Types
+
+- `bug` - Something broken
+- `feature` - New functionality
+- `task` - Work item (tests, docs, refactoring)
+- `epic` - Large feature with subtasks
+- `chore` - Maintenance (dependencies, tooling)
+
+### Priorities
+
+- `0` - Critical (security, data loss, broken builds)
+- `1` - High (major features, important bugs)
+- `2` - Medium (default, nice-to-have)
+- `3` - Low (polish, optimization)
+- `4` - Backlog (future ideas)
+
+### Workflow for AI Agents
+
+1. **Check ready work**: `bd ready` shows unblocked issues
+2. **Claim your task**: `bd update <id> --status in_progress`
+3. **Work on it**: Implement, test, document
+4. **Discover new work?** Create linked issue:
+   - `bd create "Found bug" -p 1 --deps discovered-from:<parent-id>`
+5. **Complete**: `bd close <id> --reason "Done"`
+6. **Commit together**: Always commit the `.beads/issues.jsonl` file together with the code changes so issue state stays in sync with code state
+
+### Auto-Sync
+
+bd automatically syncs with git:
+- Exports to `.beads/issues.jsonl` after changes (5s debounce)
+- Imports from JSONL when newer (e.g., after `git pull`)
+- No manual export/import needed!
+
+### MCP Server (Recommended)
+
+If using Claude or MCP-compatible clients, install the beads MCP server:
+
+```bash
+pip install beads-mcp
+```
+
+Add to MCP config (e.g., `~/.config/claude/config.json`):
+```json
+{
+  "beads": {
+    "command": "beads-mcp",
+    "args": []
+  }
+}
+```
+
+Then use `mcp__beads__*` functions instead of CLI commands.
+
+### Managing AI-Generated Planning Documents
+
+AI assistants often create planning and design documents during development:
+- PLAN.md, IMPLEMENTATION.md, ARCHITECTURE.md
+- DESIGN.md, CODEBASE_SUMMARY.md, INTEGRATION_PLAN.md
+- TESTING_GUIDE.md, TECHNICAL_DESIGN.md, and similar files
+
+**Best Practice: Use a dedicated directory for these ephemeral files**
+
+**Recommended approach:**
+- Create a `history/` directory in the project root
+- Store ALL AI-generated planning/design docs in `history/`
+- Keep the repository root clean and focused on permanent project files
+- Only access `history/` when explicitly asked to review past planning
+
+**Example .gitignore entry (optional):**
+```
+# AI planning documents (ephemeral)
+history/
+```
+
+**Benefits:**
+- ✅ Clean repository root
+- ✅ Clear separation between ephemeral and permanent documentation
+- ✅ Easy to exclude from version control if desired
+- ✅ Preserves planning history for archeological research
+- ✅ Reduces noise when browsing the project
+
+### Important Rules
+
+- ✅ Use bd for ALL task tracking
+- ✅ Always use `--json` flag for programmatic use
+- ✅ Link discovered work with `discovered-from` dependencies
+- ✅ Check `bd ready` before asking "what should I work on?"
+- ✅ Store AI planning docs in `history/` directory
+- ❌ Do NOT create markdown TODO lists
+- ❌ Do NOT use external issue trackers
+- ❌ Do NOT duplicate tracking systems
+- ❌ Do NOT clutter repo root with planning documents
+
+For more details, see README.md and QUICKSTART.md.
+
+## External CLIs
+
+Sometimes the Atlassian or GitLab MCP servers may be unavailable or unstable. In these cases, you can use the command-line tools `glab` and `acli` directly via the `Bash` tool.
+
+Instructions for these tools are not loaded by default to save context. If you need to use them, read the following files:
+- **GitLab CLI (`glab`)**: `~/.config/generative-ai/tools/gitlab-cli.md`
+- **Atlassian CLI (`acli`)**: `~/.config/generative-ai/tools/atlassian-cli.md`
 
 ---
 
