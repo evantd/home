@@ -68,3 +68,34 @@ glab api "/projects/frontend%2Fglobalnav-render-service/merge_requests/3852/disc
 - Checking CI/CD status (`glab ci status`)
 - Viewing pipeline logs (`glab ci trace`)
 - Retrieving inline code review comments from MRs
+- Reading file contents from repos without cloning
+
+## Reading File Contents
+
+**Get raw file content from a remote repository:**
+```bash
+glab api '/projects/<url-encoded-project>/repository/files/<url-encoded-path>/raw?ref=<branch>' --hostname <gitlab-host>
+```
+
+**Example:** Read `tea_analytics/data_sources/DataSource.py` from branch `hackathon/seth`:
+```bash
+glab api '/projects/edower%2Ftalent-enablement-automation/repository/files/tea_analytics%2Fdata_sources%2FDataSource.py/raw?ref=hackathon%2Fseth' --hostname code.corp.indeed.com
+```
+
+**Key points:**
+- URL-encode the project path (`/` → `%2F`)
+- URL-encode the file path (`/` → `%2F`)
+- URL-encode the branch name (`/` → `%2F`)
+- Use `--hostname` for Indeed GitLab (`code.corp.indeed.com`)
+
+**Browse repository tree:**
+```bash
+glab api '/projects/<url-encoded-project>/repository/tree?ref=<branch>&path=<optional-path>' --hostname <host>
+```
+
+**Alternative (if you have repo cloned locally):**
+```bash
+git fetch origin <branch>
+git show origin/<branch>:<path/to/file>
+```
+This is often simpler if you already have the repo cloned.
