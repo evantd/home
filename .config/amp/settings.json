@@ -35,13 +35,6 @@
 			"command": "bash",
 			"args": [
 				"-c",
-				"uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project \"$(pwd)\""
-			]
-		},
-		"serena-optimized": {
-			"command": "bash",
-			"args": [
-				"-c",
 				"/Users/edower/indeed/library/venv/bin/python3 /Users/edower/indeed/library/scripts/optimize-mcp.py --backend \"uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project $(pwd)\""
 			]
 		},
