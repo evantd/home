@@ -27,10 +27,6 @@
 		}
 	],
 	"amp.mcpServers": {
-		"playwright": {
-			"url":       "http://localhost:64661/sse#playwright",
-			"transport": "sse"
-		},
 		"serena": {
 			"command": "bash",
 			"args": [
