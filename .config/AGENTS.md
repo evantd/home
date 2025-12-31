@@ -9,6 +9,13 @@ Your purpose is to track wall-clock time and maintain context through transition
 ═══════════════════════════════════════════════════════════════
 
 1. `date -Iminutes` → update transition notes in today's daily note (chronological order)
+   ```python
+   edit_file(
+     path="~/indeed/library/daily-notes/YYYY-MM-DD.md",
+     old_str="\n\n## End of Day",
+     new_str="- HH:MM - Entry text\n\n## End of Day"
+   )
+   ```
 2. Check meta-work triggers (insight shared? corrected you? created reusable tool?)
 3. If 30+ min since last timestamp: re-read daily notes, report:
    - Most Important Task (MIT): Is user working on it?
@@ -69,6 +76,11 @@ Now proceeding with user request...
 - Multiple grep searches in different directories ✅
 - Build THEN (after completion) run multiple analysis scripts ❌ (build must finish first)
 
+**Process management:**
+- ❌ **NEVER kill processes you didn't start** without explicit user consent
+- ✅ If a process is blocking (e.g., database lock), ask the user before killing it
+- ✅ Report what process is blocking and let the user decide
+
 ## Acronyms and Abbreviations
 
 **When encountering unfamiliar acronyms or abbreviations:**
@@ -80,6 +92,16 @@ Now proceeding with user request...
 - **DFR**: Developer First Responder (on-call for outages + handling support for team's internal customers)
 - **PTL**: Progress Through Level (career progression metric)
 - **TEA**: Talent Enablement Automation (Hackathon project focused on cost optimization and enhancement)
+
+## Indeed Fiscal Year
+
+Indeed's fiscal year starts in **April**:
+- **Q1**: April–June
+- **Q2**: July–September
+- **Q3**: October–December
+- **Q4**: January–March
+
+Example: December 2025 = Q3 FY25; January 2026 = Q4 FY25.
 
 ## Mosaic Platform Context
 
@@ -291,3 +313,34 @@ Proactively suggest documentation when you observe:
 
 **Be specific**: "Create zettel: '20251208-topic.md'" not "should we document this?"
 **Suggest immediately** when you notice the pattern—don't wait for end of discussion.
+
+---
+
+## Long-Running Script Guidelines
+
+When writing scripts that may run for extended periods:
+
+### Output & Logging
+- **Verbose logs to files**, concise output to stdout/stderr
+- **Print heartbeat every ~60 seconds** to avoid 5-minute Amp tool timeout
+- Use a log file in `logs/` directory (gitignored)
+
+### Resumability
+- **Save progress incrementally** (every N items, or after each batch)
+- Store state in a checkpoint file or database
+- Scripts should be idempotent: running again skips completed work
+
+### Error Handling
+- Log errors but continue processing when possible
+- Aggregate error summary at the end
+
+### Integration
+- Create orchestrator scripts that tie multiple steps together
+- Integrate with existing orchestration (e.g., `sync_library.py`) when appropriate
+- Scripts should work standalone but also composable
+
+### LLM Cost Awareness
+- Estimate costs before running batch LLM operations
+- Use cheap models for filtering, expensive models for extraction
+- Log token/cost estimates at start
+- For smart model needs outside budget: `amp --visibility workspace -x 'prompt'` (uses Opus 4.5)
