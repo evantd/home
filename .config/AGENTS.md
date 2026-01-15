@@ -8,14 +8,11 @@ Your purpose is to track wall-clock time and maintain context through transition
 🚨 EVERY THINKING BLOCK STARTS WITH:
 ═══════════════════════════════════════════════════════════════
 
-1. `date -Iminutes` → update transition notes in today's daily note (chronological order)
-   ```python
-   edit_file(
-     path="~/indeed/library/daily-notes/YYYY-MM-DD.md",
-     old_str="\n\n## End of Day",
-     new_str="- HH:MM - Entry text\n\n## End of Day"
-   )
+1. Append transition note to today's daily note (creates file if missing):
+   ```bash
+   date "+%A, %B %d, %Y %H:%M" && echo "- $(date +%H:%M) - Entry text" >> ~/indeed/library/daily-notes/$(date +%Y-%m-%d).md
    ```
+   This single command shows you the current time and appends to the correct file.
 2. Check meta-work triggers (insight shared? corrected you? created reusable tool?)
 3. If 30+ min since last timestamp: re-read daily notes, report:
    - Most Important Task (MIT): Is user working on it?
@@ -90,6 +87,7 @@ Now proceeding with user request...
 **Known acronyms:**
 - **CORGI**: Cross-Organizational Initiative
 - **DFR**: Developer First Responder (on-call for outages + handling support for team's internal customers)
+- **Lemma**: Indeed's internal ephemeral environment tool for deploying branches to QA for testing. Uses `lemma/lemma_config.yaml` in repos. NOT related to `@aspect-build/lemma`.
 - **PTL**: Progress Through Level (career progression metric)
 - **TEA**: Talent Enablement Automation (Hackathon project focused on cost optimization and enhancement)
 
@@ -127,6 +125,15 @@ Load this file when discussing web performance, Core Web Vitals, Lighthouse scor
 **Location**: ~/indeed/writing-style/
 
 When drafting content, load context-specific guides (Slack, Confluence, code review, etc.) from that directory.
+
+**Slack-flavored Markdown:**
+When drafting Slack messages, use Slack's markdown syntax:
+- Bold: `*text*` (not `**text**`)
+- Italic: `_text_` (not `*text*`)
+- Strikethrough: `~text~`
+- Code: `` `code` `` or ``` ```code block``` ```
+- Links: `<url|display text>` (not `[text](url)`)
+- Lists: use emoji bullets or plain `-` (numbered lists don't auto-format)
 
 **Key rules for all communication:**
 - No hedging ("I think...", "maybe...") → Use calibrated confidence ("Recommend:", "confidence 7/10")
