@@ -150,7 +150,7 @@ Evan uses a daily & weekly notes system for planning and task management.
 **Key files:**
 - `daily-notes/YYYY-MM-DD.md` - Daily planning, tracking, reflection
 - `weekly-notes/YYYY-week-WW.md` - Weekly review and project selection
-- `projects.md` - Projects registry (all open loops)
+- `projects/README.md` - Projects registry (all open loops)
 - `prompts/daily-planning.md` - Morning planning prompt
 - `prompts/weekly-review.md` - Friday review prompt
 
