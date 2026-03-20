@@ -8,11 +8,11 @@ Your purpose is to track wall-clock time and maintain context through transition
 🚨 EVERY THINKING BLOCK STARTS WITH:
 ═══════════════════════════════════════════════════════════════
 
-1. Append transition note to today's daily note (creates file if missing):
+1. Append transition note to today's daily note:
    ```bash
-   date "+%A, %B %d, %Y %H:%M" && echo "- $(date +%H:%M) - Entry text" >> ~/indeed/library/daily-notes/$(date +%Y-%m-%d).md
+   log-transition "Entry text"
    ```
-   This single command shows you the current time and appends to the correct file.
+   This shows the current time AND appends to today's daily note. Always use this — never the raw echo command.
 2. Check meta-work triggers (insight shared? corrected you? created reusable tool?)
 3. If 30+ min since last timestamp: re-read daily notes, report:
    - Most Important Task (MIT): Is user working on it?
@@ -20,6 +20,8 @@ Your purpose is to track wall-clock time and maintain context through transition
    - High-priority incomplete TODOs
 
 Then proceed with user request.
+
+**If user says "check the time":** This usually means you've lost track of time passing. Re-orient: check time, re-read recent transition notes, and reconsider context (e.g., "I spent all day on X" likely means TODAY, not yesterday).
 
 ═══════════════════════════════════════════════════════════════
 
@@ -89,7 +91,10 @@ Now proceeding with user request...
 - **DFR**: Developer First Responder (on-call for outages + handling support for team's internal customers)
 - **Lemma**: Indeed's internal ephemeral environment tool for deploying branches to QA for testing. Uses `lemma/lemma_config.yaml` in repos. NOT related to `@aspect-build/lemma`.
 - **PTL**: Progress Through Level (career progression metric)
+- **SERP**: Search Results Page (job search results; on desktop includes split-pane ViewJob)
 - **TEA**: Talent Enablement Automation (Hackathon project focused on cost optimization and enhancement)
+- **Progressive eval**: Indeed's self-evaluation for career progression (PTL)
+- **ZRP**: Zero Results Page (shown when a search returns no results)
 
 ## Indeed Fiscal Year
 
@@ -114,6 +119,12 @@ Example: December 2025 = Q3 FY25; January 2026 = Q4 FY25.
 - **Documentation**: [Confluence MAP space](https://indeed.atlassian.net/wiki/spaces/MAP/)
 - **Slack channels**: #mosaic (public), #mosaic-team (private), #global-nav
 
+## Personal Profile
+
+**Location**: ~/.config/generative-ai/context/personal-profile.md
+
+Persistent profile capturing Evan's knowledge domains, responsibilities, interests, content preferences, and taste signals. Load when making recommendations, triaging content, or needing context about what Evan knows/cares about. Structured for progressive disclosure — start with the Summary section.
+
 ## Sitespeed Context
 
 **Location**: ~/.config/generative-ai/context/sitespeed.md
@@ -132,7 +143,7 @@ When drafting Slack messages, use Slack's markdown syntax:
 - Italic: `_text_` (not `*text*`)
 - Strikethrough: `~text~`
 - Code: `` `code` `` or ``` ```code block``` ```
-- Links: `<url|display text>` (not `[text](url)`)
+- Links: `[display text](url)` (standard markdown — the `<url|text>` format does NOT work)
 - Lists: use emoji bullets or plain `-` (numbered lists don't auto-format)
 
 **Key rules for all communication:**
@@ -192,6 +203,10 @@ Load when debugging persistent AI behavior issues (protocol non-adherence, repea
 - ❌ **Avoid `sed`** - platform-specific syntax (macOS requires `sed -i ''`, Linux uses `sed -i`)
 - ❌ **Avoid `awk`, `perl -i`** - harder to debug, platform differences
 
+**Slack URLs:**
+- ❌ **`read_web_page` cannot access Slack** — requires authentication
+- ✅ **Use the `glean` skill** to search/read Slack messages and threads
+
 **Why**: The `edit_file` tool is cross-platform, provides clear diffs, and has built-in safety checks.
 
 **Example - WRONG**:
@@ -230,61 +245,6 @@ GIT_EDITOR=true git rebase -i HEAD~3
 GIT_EDITOR=true git rebase --continue
 ```
 
-## Issue Tracking with bd (beads)
-
-Track ALL work in beads—no markdown TODOs, no TodoWrite tool.
-
-> **Update note**: This section mirrors `bd prime` output. Update after upgrading bd.
-
-### Session Close Protocol
-
-**Before saying "done" or "complete", run this checklist:**
-
-```
-[ ] 1. git status              (check what changed)
-[ ] 2. git add <files>         (stage code changes)
-[ ] 3. bd sync                 (commit beads changes)
-[ ] 4. git commit -m "..."     (commit code)
-[ ] 5. bd sync                 (commit any new beads changes)
-[ ] 6. git push                (push to remote)
-```
-
-### Essential Commands
-
-**Finding Work:**
-- `bd ready` - Show issues ready to work (no blockers)
-- `bd list --status=open` - All open issues
-- `bd list --status=in_progress` - Your active work
-- `bd show <id>` - Detailed issue view with dependencies
-
-**Creating & Updating:**
-- `bd create --title="..." --type=task|bug|feature` - New issue
-- `bd update <id> --status=in_progress` - Claim work
-- `bd close <id>` - Mark complete
-- `bd close <id1> <id2> ...` - Close multiple issues at once
-
-**Dependencies:**
-- `bd dep add <issue> <depends-on>` - Add dependency
-- `bd blocked` - Show all blocked issues
-
-**Sync:**
-- `bd sync` - Sync with git remote (run at session end)
-
-### Common Workflows
-
-**Starting work:**
-```bash
-bd ready                                  # Find available work
-bd show <id>                              # Review issue details
-bd update <id> --status=in_progress       # Claim it
-```
-
-**Completing work:**
-```bash
-bd close <id1> <id2> ...    # Close all completed issues at once
-bd sync                     # Push to remote
-```
-
 ### Managing AI-Generated Planning Documents
 
 Store AI planning docs (PLAN.md, DESIGN.md, etc.) in `history/` directory to keep repo root clean.
@@ -292,10 +252,18 @@ Store AI planning docs (PLAN.md, DESIGN.md, etc.) in `history/` directory to kee
 ## Context Management
 
 - 🚨 **Use `Task` for large files**: When analyzing large logs (>100 lines) or configuration files, ALWAYS use the `Task` tool (subagent). This prevents the raw content from polluting the main conversation history.
+- 🚨 **Use `Task` for observability investigations**: Datadog queries (logs, metrics, traces) produce verbose output. Delegate to Task subagents with specific questions like "What was the error rate before/after the deploy?" and have them return only the summary/conclusion.
 - 🚨 **Grep before Read**: Never `Read` a large file to find a specific line. Use `Grep` first to locate the relevant section.
 - 🚨 **Limit Git output**: Always use `-n` or similar limits when running `git log`.
 
 For more details, see README.md and QUICKSTART.md.
+
+## Searching for Past Threads (`find_thread`)
+
+- **Use wide time windows** — `after:7d` not `after:2d`, even for "yesterday." Tight windows miss edge cases.
+- **Search for discussion vocabulary, not your framing** — if you're looking for "pros and cons of rating 5 vs 6," also search for terms the *discussion* likely used (e.g., `over-rating under-rating performance`).
+- **Conversations drift** — important discussions often live inside threads with unrelated titles. Don't rely on title matching alone.
+- **Run 3+ varied keyword queries in parallel** to compensate for vocabulary mismatch between the search query and the actual thread content.
 
 ## External CLIs
 
@@ -320,6 +288,17 @@ Proactively suggest documentation when you observe:
 
 **Be specific**: "Create zettel: '20251208-topic.md'" not "should we document this?"
 **Suggest immediately** when you notice the pattern—don't wait for end of discussion.
+
+---
+
+## Code Review: Dual-Skill Approach
+
+When reviewing code (MRs, diffs, or local changes), **run both review skills in parallel**:
+
+1. **`review`** (custom skill) — confidence-based, catches code hygiene issues (copy semantics, unused return values, duplicate logic, API misuse)
+2. **`code_review`** (builtin Amp skill) — catches higher-impact design issues (data loss, performance, prompt injection, security)
+
+They find largely non-overlapping issues. Combine findings into a single report.
 
 ---
 
