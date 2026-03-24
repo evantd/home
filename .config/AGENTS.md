@@ -23,6 +23,23 @@ Then proceed with user request.
 
 **If user says "check the time":** This usually means you've lost track of time passing. Re-orient: check time, re-read recent transition notes, and reconsider context (e.g., "I spent all day on X" likely means TODAY, not yesterday).
 
+### Time-Passing Signals (ALWAYS log a transition)
+
+The user often signals that time has passed since the last interaction. These signals mean: **log a transition note FIRST, before doing anything else.** This is the highest-priority action — even above the user's task request.
+
+**Explicit signals:**
+- "It's a new day" / "new day" / "good morning"
+- "Picking this back up" / "returning to this" / "back on this"
+- "Continuing from yesterday" / "continuing from [thread]"
+- "After lunch" / "after my meeting" / "back from [break]"
+
+**Implicit signals:**
+- User message references a previous thread (e.g., "Continuing work from thread T-...")
+- User state section mentions prior context from a different session
+- The task clearly continues prior work but the user re-explains context (they wouldn't re-explain if no time had passed)
+
+**The transition note should capture what you're about to work on**, not just "returning." E.g., "Returning to strict-dom draft — applying feedback on structure and decisions" not just "Back at computer."
+
 ═══════════════════════════════════════════════════════════════
 
 ### Example (30-minute check triggered)
@@ -175,14 +192,38 @@ Evan uses a daily & weekly notes system for planning and task management.
 
 See ~/indeed/library/PLANNING.md for complete system documentation.
 
+## Interpreting Transition Notes
+
+**Transition note timestamps ≠ work hours.** Don't subtract first from last and call it a workday. Instead:
+1. Look for gaps between timestamps to identify breaks (lunch, K pickup, dinner, bedtime)
+2. Cross-reference SCHEDULE-REFERENCE.md for typical break patterns
+3. Note that brief timestamps during gaps (e.g., evening) may just be "walking by the computer" — a minute nudging agents, not a full work session
+4. Actual work time on a typical day is ~5.5 hours (per SCHEDULE-REFERENCE.md), even when timestamps span 6am to 10pm
+
 ## Zettelkasten Notes
 
 **Location**: ~/indeed/library/zk/  
+**Directory structure**: `zk/YYYY/MM/DD/YYYYMMDD-descriptive-slug.md` (hub notes stay in `zk/hubs/`)  
 **Format & criteria**: ~/indeed/library/ZETTELKASTEN.md
 
-See ZETTELKASTEN.md for what qualifies as note-worthy and how to structure notes.
+Always read ZETTELKASTEN.md before creating zettels — it defines directory structure, frontmatter format, and note type categories.
 
 **Daily notes connection:** Daily notes (~/indeed/library/daily-notes/) serve as fleeting notes. During weekly review or periodically, promote worthy insights to permanent zettels.
+
+---
+
+## Clipboard Convert
+
+**Location**: `~/indeed/library/scripts/clipboard-convert` (compiled Swift binary)  
+**Source**: `~/indeed/library/scripts/clipboard-convert.swift`
+
+Bidirectional clipboard format converter using pandoc:
+- **Markdown → HTML**: If clipboard has plain text only, treats it as Markdown and adds HTML to clipboard
+- **HTML → Markdown**: If clipboard has HTML, converts to Markdown and sets plain text
+
+**Usage**: Copy content, then run `~/indeed/library/scripts/clipboard-convert`. Paste result into target (e.g., Workday, Confluence). The tool auto-detects direction based on clipboard content types.
+
+**When the user says "run clipboard-convert"**: Run the command, then the clipboard will be ready for pasting.
 
 ---
 
