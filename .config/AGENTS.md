@@ -173,22 +173,25 @@ When drafting Slack messages, use Slack's markdown syntax:
 
 **Location**: ~/indeed/library/
 
-Evan uses a daily & weekly notes system for planning and task management.
+Evan uses a daily & weekly notes system for planning and task management. The system is grounded in finitude philosophy — it exists to help him consciously choose what gets his limited time and make peace with everything that doesn't. It's also a therapeutic tool for someone whose default mode is stress, overwhelm, and "never enough."
+
+**Why this matters for agents:** Without this context, you'll default to generic productivity advice. With it, you can reason about Evan's specific edge cases — "should I push through or stop?" depends on knowing that kindness (🦶) is the primary value and that the Finish Line exists to give permission to stop.
 
 **Key files:**
+- `PLANNING.md` - Complete system docs, including "Why This System Exists" and current experiment
 - `daily-notes/YYYY-MM-DD.md` - Daily planning, tracking, reflection
 - `weekly-notes/YYYY-week-WW.md` - Weekly review and project selection
 - `projects/README.md` - Projects registry (all open loops)
-- `prompts/daily-planning.md` - Morning planning prompt
-- `prompts/weekly-review.md` - Friday review prompt
 
 **Core concepts:**
+- **Success = conscious choices** - Not completion metrics. Choosing to rest is success.
+- **🦶 Kindness is primary** - When values conflict, default to kindness (especially self-kindness)
 - **Chores ≠ Projects** - Never mix recurring maintenance with completable work
-- **Success = conscious choices** - Not completion metrics
 - **Values-tagged tasks** - Use 🌱🦶🗡️🔦 emojis
-- **3-5 active projects max** - Rest go to backburner
+- **3-5 active projects max** - Rest go to backburner (accepting finitude, not deferring lazily)
 - **Most Important Task (MIT)** - ONE most important thing each day
-- **Deliverable framing** - Even for ambiguous work, define what you can deliver today
+- **Finish Line** - Define "enough" at the start of the day. Permission to stop.
+- **Consciously not doing** - Name what's being neglected today to preempt guilt
 
 See ~/indeed/library/PLANNING.md for complete system documentation.
 
@@ -246,7 +249,8 @@ Load when debugging persistent AI behavior issues (protocol non-adherence, repea
 
 **Slack URLs:**
 - ❌ **`read_web_page` cannot access Slack** — requires authentication
-- ✅ **Use the `glean` skill** to search/read Slack messages and threads
+- ✅ **Prefer the `indeed-ai-chat-mcp` skill** for Slack messages, Google Docs, Gmail, Calendar (direct API access via Indeed AI Chat's mcpo proxy on localhost:8765)
+- ✅ **Fall back to `glean` skill** if Indeed AI Chat / Docker is not running, or for cross-platform search
 
 **Why**: The `edit_file` tool is cross-platform, provides clear diffs, and has built-in safety checks.
 
