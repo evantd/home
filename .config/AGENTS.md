@@ -142,6 +142,8 @@ Example: December 2025 = Q3 FY25; January 2026 = Q4 FY25.
 
 Persistent profile capturing Evan's knowledge domains, responsibilities, interests, content preferences, and taste signals. Load when making recommendations, triaging content, or needing context about what Evan knows/cares about. Structured for progressive disclosure — start with the Summary section.
 
+**Self-reflection prompts:** When asking Evan about feelings, values, or self-assessment, use "how" questions that invite observation, not "was/did" questions that invite judgment. "How was I kind to myself?" produces noticing. "Was I kind to myself?" produces a pass/fail gate that resolves to guilt. This is curiosity (🔦) applied as kindness (🦶).
+
 ## Sitespeed Context
 
 **Location**: ~/.config/generative-ai/context/sitespeed.md
