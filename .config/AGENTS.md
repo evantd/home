@@ -28,7 +28,8 @@ Then proceed with user request.
 The user often signals that time has passed since the last interaction. These signals mean: **log a transition note FIRST, before doing anything else.** This is the highest-priority action — even above the user's task request.
 
 **Explicit signals:**
-- "It's a new day" / "new day" / "good morning"
+- "It's a new day" / "new day" / "good morning" / "It's another day"
+- "It's [day of week]" / "Today is [date]" (when different from the current conversation day)
 - "Picking this back up" / "returning to this" / "back on this"
 - "Continuing from yesterday" / "continuing from [thread]"
 - "After lunch" / "after my meeting" / "back from [break]"
