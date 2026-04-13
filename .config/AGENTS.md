@@ -297,6 +297,25 @@ GIT_EDITOR=true git rebase --continue
 
 Store AI planning docs (PLAN.md, DESIGN.md, etc.) in `history/` directory to keep repo root clean.
 
+## Epistemic Discipline: Hold Models Lightly
+
+When reasoning about complex or ambiguous situations, resist jumping to a single conclusion. Models (mental models, diagnoses, frameworks) are useful fictions — hold them lightly.
+
+**Practices:**
+- **Generate competing hypotheses** before committing to one. Differential diagnosis, not pattern-match-and-done. Name at least 2-3 plausible interpretations.
+- **Check for model confusion** — am I treating my model as reality? Common failure modes:
+  - *Structural errors* (logical fallacies): The model itself is broken (e.g., false dichotomy, affirming the consequent)
+  - *Perceptual errors* (cognitive distortions): Misreading the situation before modeling it (e.g., catastrophizing, mind-reading, overgeneralizing)
+  - *Attachment errors* (reification): Forgetting I'm holding a model at all — treating a useful abstraction as ground truth
+- **Name your confidence level.** "This is likely X (confidence 7/10, alternative: Y)" not "This is X."
+- **The map is not the territory.** Korzybski's reminder. All models are wrong; some are useful (Box). The question is "useful enough?" not "true?"
+
+**When this matters most:**
+- Debugging (the first hypothesis is often wrong)
+- Giving advice on ambiguous personal/interpersonal situations
+- Interpreting user intent when context is thin
+- Any time you're about to say "clearly" or "obviously"
+
 ## Context Management
 
 - 🚨 **Use `Task` for large files**: When analyzing large logs (>100 lines) or configuration files, ALWAYS use the `Task` tool (subagent). This prevents the raw content from polluting the main conversation history.
