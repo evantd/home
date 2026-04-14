@@ -334,11 +334,11 @@ For more details, see README.md and QUICKSTART.md.
 
 ## External CLIs
 
-Sometimes the Atlassian or GitLab MCP servers may be unavailable or unstable. In these cases, you can use the command-line tools `glab` and `acli` directly via the `Bash` tool.
+Sometimes MCP servers may be unavailable or unstable. In these cases, you can use command-line tools directly via the `Bash` tool.
 
 Instructions for these tools are not loaded by default to save context. If you need to use them, read the following files:
 - **GitLab CLI (`glab`)**: `~/.config/generative-ai/tools/gitlab-cli.md`
-- **Atlassian CLI (`acli`)**: `~/.config/generative-ai/tools/atlassian-cli.md` (includes Markdown→ADF formatting approach)
+- **Atlassian (`acli` + MCP)**: Use the `atlassian` skill — it covers both the MCP server and acli CLI with decision logic for when to use which
 
 ---
 
