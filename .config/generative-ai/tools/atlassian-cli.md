@@ -1,10 +1,11 @@
 # Atlassian CLI (`acli`) Instructions
 
-When the Atlassian MCP server is unavailable, use `acli` to interact with Jira. (Note: `acli` does not currently support Confluence).
+When the Atlassian MCP server is unavailable, use `acli` to interact with Jira and (limited) Confluence.
 
 **Prerequisites:**
 - `acli` installed (`brew tap atlassian/homebrew-acli && brew install acli`)
-- Authenticated (`acli jira auth login`)
+- Authenticated: `acli jira auth login` and `acli confluence auth login --web`
+- Jira and Confluence require **separate** auth. Jira uses API token; Confluence requires OAuth (`--web`).
 
 ## Common Commands
 
@@ -130,8 +131,38 @@ acli jira workitem edit --from-json /tmp/payload.json --json --yes
 - **`codeBlock`**: Do NOT include `attrs.language` — it may cause errors
 - If you need bold code-like text, use just `code` or just `strong`, not both
 
+## Confluence (v1.3.18 — limited support)
+
+**What works:**
+- `acli confluence page view --id <pageID>` — read a page by ID (requires knowing the ID)
+  - Add `--body-format storage` for XHTML or `--body-format atlas_doc_format` for ADF
+  - Add `--json` for structured output
+- `acli confluence space list` — list spaces (but `--keys` filter is **broken**, ignores the filter)
+- `acli confluence space view --id <spaceID>` — view space details
+- `acli confluence blog list --space-id <id>` — list blog posts
+- `acli confluence blog create` — create blog posts
+
+**What's missing:**
+- **No page search** — can't find pages by title or CQL query
+- **No page list** — can't list pages within a space
+- **No page create/edit/delete** — read-only for pages
+- **No search at all** — no CQL or full-text search equivalent
+
+**When to use Confluence via acli (even if MCP is available):**
+- **Blog posts** — acli can list, view, and create blog posts; the Atlassian MCP has no blog support
+- Reading a specific page when MCP is down (if you already have the page ID)
+- Listing spaces
+
+**When to use the Atlassian MCP skill instead:**
+- Searching for pages (CQL queries)
+- Finding pages by title + space key
+- Creating, editing, deleting, or moving pages
+- Comments, labels, attachments, page history/diffs
+- The MCP has 72 tools total (full Confluence + Jira CRUD); the skill only documents 3 — run `tools/list` to discover more
+
 ## When to use
 - Checking ticket status
 - Transitioning tickets (e.g. moving to "In Progress")
 - Adding comments/updates when MCP is flaky
+- Reading a known Confluence page by ID when MCP is down
 - Prefer CLI over MCP when both work (CLIs are more reliable and use less context)
