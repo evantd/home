@@ -87,6 +87,7 @@ Now proceeding with user request...
   - **ESPECIALLY CRITICAL** in home directory (~/.config, ~/indeed/library) - many untracked files expected
 - ✅ **Always explicitly stage files**: `git add file1.ts file2.ts` or `git add src/specific/path/`
 - ✅ Use `git status` first to see what would be staged
+- ✅ **Continuation threads**: When continuing from a previous thread (handoff, "continuing from T-..."), uncommitted changes from the prior thread are part of *your* work. Check `git diff --name-only` for related unstaged changes and include them in your commit.
 
 **Only run in parallel when truly independent:**
 - Reading multiple different files simultaneously ✅
@@ -318,6 +319,10 @@ When reasoning about complex or ambiguous situations, resist jumping to a single
 
 ## Context Management
 
+- 🚨🚨🚨 **REDIRECT long-running command output to files**: When running builds, linters, test suites, or any command that may produce more than ~20 lines of output, ALWAYS redirect to a file (`> /tmp/output.txt 2>&1`) and then use `Grep`/`Read` on the file to extract what you need. **NEVER** use `tee` (it still dumps everything into context). **NEVER** let verbose output flow into the conversation — it wastes thousands of tokens and degrades context quality. After redirecting, grep the file for errors/relevant lines.
+  - ✅ `pnpm build > /tmp/build.txt 2>&1; echo "EXIT: $?"`  then  `grep "error" /tmp/build.txt`
+  - ❌ `pnpm build 2>&1 | tail -80` (80 lines of build output in context)
+  - ❌ `pnpm build 2>&1 | tee /tmp/build.txt` (same problem — tee prints everything)
 - 🚨 **Use `Task` for large files**: When analyzing large logs (>100 lines) or configuration files, ALWAYS use the `Task` tool (subagent). This prevents the raw content from polluting the main conversation history.
 - 🚨 **Use `Task` for observability investigations**: Datadog queries (logs, metrics, traces) produce verbose output. Delegate to Task subagents with specific questions like "What was the error rate before/after the deploy?" and have them return only the summary/conclusion.
 - 🚨 **Grep before Read**: Never `Read` a large file to find a specific line. Use `Grep` first to locate the relevant section.
@@ -331,6 +336,24 @@ For more details, see README.md and QUICKSTART.md.
 - **Search for discussion vocabulary, not your framing** — if you're looking for "pros and cons of rating 5 vs 6," also search for terms the *discussion* likely used (e.g., `over-rating under-rating performance`).
 - **Conversations drift** — important discussions often live inside threads with unrelated titles. Don't rely on title matching alone.
 - **Run 3+ varied keyword queries in parallel** to compensate for vocabulary mismatch between the search query and the actual thread content.
+
+## mcpc Version Migration (0.1.x → 0.2.x)
+
+Many skills reference `mcpc --config assets/mcpc.json <server> tools-call ...` — this is **0.1.x syntax** and no longer works. Current mcpc (0.2.x) uses persistent sessions.
+
+**When a skill uses `--config`, translate to:**
+1. Check for an active session: `mcpc` (no args lists sessions)
+2. If no session exists, connect: `mcpc connect <url> @<server-name>` (get URL from `thv list` or the skill's `assets/mcpc.json`)
+3. Run commands via session: `mcpc [--timeout N] @<server-name> tools-call <tool> key:=value`
+
+**Example translation:**
+```bash
+# OLD (broken): mcpc --timeout 600 --config assets/mcpc.json deepsearch tools-call deepsearch question:="..."
+# NEW: mcpc connect http://127.0.0.1:54930/.api/mcp/deepsearch @deepsearch  (once)
+#      mcpc --timeout 600 @deepsearch tools-call deepsearch question:="..."
+```
+
+**Also update `allowed-tools` mentally** — patterns like `Bash(mcpc --config * ...)` should be treated as `Bash(mcpc *)`.
 
 ## External CLIs
 
@@ -355,6 +378,18 @@ Proactively suggest documentation when you observe:
 
 **Be specific**: "Create zettel: '20251208-topic.md'" not "should we document this?"
 **Suggest immediately** when you notice the pattern—don't wait for end of discussion.
+
+---
+
+## Referencing Tickets and MRs
+
+**Prefer Jira IDs** (e.g., RN-2488, MOSPLAT-4029) over MR numbers as primary identifiers. Jira IDs are unique; MR numbers are not (every repo has a !51).
+
+When mentioning MRs, **include the repo**: `mobile-app-platform!9503`, `tea!51`, `mosaic-platform!468`. Bare `!9503` is ambiguous.
+
+**Linkify when practical** using GitLab URLs: `[mobile-app-platform!9503](https://code.corp.indeed.com/mobile-app-platform/mobile-app-platform/-/merge_requests/9503)`.
+
+In planning notes and daily notes, Jira IDs are usually sufficient since they're what the user thinks in terms of. Add MR references when the specific MR status matters (conflicts, CI, reviewer activity).
 
 ---
 
