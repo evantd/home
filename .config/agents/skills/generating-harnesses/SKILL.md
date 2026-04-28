@@ -389,6 +389,81 @@ The signature of "should be A": prompt already names the structural
 target, but the gate doesn't reward it. The signature of "should be B":
 no prior iters even attempt the structural target.
 
+**8. Scope evasion via refactor primitives.** A more adversarial form
+of #1: when the metric is computed by scanning a function (e.g.,
+`awk '/^function foo/,/^}$/' | grep -cE '...'`), the agent can extract
+HELPERS outside the function whose bodies host the same dispatch
+patterns. The metric reads zero; the dispatch logic is intact, just
+relocated. Symptom: metric drops sharply with `[refactor]`/`[extract]`
+commits while no IR/test/correctness signal moves; downstream meta
+cycles eventually catch the discrepancy when the agent runs out of
+non-tested progress. Remedy: scope the metric across the entire file
+or module, not a single function — the agent can still extract
+helpers, but the metric continues to count their dispatch patterns
+wherever they live. Even better: track the metric over a *type-system*
+or *AST* scope (e.g., "discriminator unions remaining") that's
+refactor-stable.
+
+### The Goodhart trap: metrics need intent framing
+
+Every anti-pattern above is a manifestation of the same root issue:
+**prompts that frame the work as metric-satisfaction induce metric-
+gaming.** When the agent's only optimization signal is "make these
+numbers move", it will find ways to move the numbers that don't
+advance the actual goal. Tightening the metric closes one loophole
+and the agent finds another. Eventually you're spending more
+iterations playing whack-a-mole than doing the real work.
+
+The remedy is to write GOAL prompts that name **the spirit of the
+work** in terms the agent can evaluate alongside the metrics, not
+just the metrics in isolation:
+
+- ❌ Metric-only: "classify_lines MUST decrease. classify_cases MUST
+  NOT increase. ir_calls growth is rewarded."
+- ✅ Spirit + metric: "The end state is that classifySxExpression is a
+  thin dispatcher and the IR module owns all transformation logic. The
+  legacy ad-hoc dispatch is gone. Your iter is real progress if it
+  moves the codebase toward that end state — not if it merely satisfies
+  the numeric gates. Helper extraction that relocates dispatch logic
+  to satisfy a regex is NOT real progress; the gate may accept it but
+  the meta will catch it. The metrics below approximate progress; when
+  in doubt, ask 'is the codebase simpler/more typed/more testable than
+  before?' and use that as the tiebreaker."
+
+**Why this works**: agent post-training is reasonably good at
+"evaluate this code change against this stated goal" when the goal is
+articulated with concrete end-state criteria. It's much less good at
+"satisfy this metric without gaming it" because agents have generalized
+strategies for satisfying metrics that don't always coincide with what
+the principal wants.
+
+**Practical recipe for prompt structure**:
+
+1. **Spirit (3-5 sentences)**: name the end state, the principal's
+   actual goal, and what "real progress" vs. "fake progress" looks
+   like in concrete terms.
+2. **Hard guardrails (must-pass)**: things that always reject —
+   correctness invariants, build/lint/test, never-go-backward
+   constraints. These are uncontroversial; agents don't game them
+   because they're impossible to satisfy without doing them.
+3. **Acceptance regime (priority-ordered)**: the metrics, framed as
+   approximations of the spirit, with explicit acknowledgment that the
+   metrics are imperfect. Include "if your iter satisfies a metric but
+   doesn't match the spirit, the meta will catch it" as a deterrent.
+4. **Anti-pattern callouts**: name the gaming patterns you've seen and
+   warn against them explicitly. "Do not extract helpers solely to
+   evade the regex. Do not split lines to grow occurrence counts." This
+   is more effective than just tightening the gate, because it gives
+   the agent explicit knowledge of what counts as gaming.
+
+The metric-vs-spirit balance is fundamentally about epistemic respect
+for the agent: the meta loop assumes the agent will rationally follow
+incentives, including misaligned ones, so the prompt should make the
+true incentive (the spirit) just as legible as the proxy incentives
+(the metrics). Without the spirit, the agent has nothing to fall back
+on when the metrics produce ambiguous signals — and gaming becomes
+the path of least resistance.
+
 ### When NOT to use a meta layer
 
 - Single-objective harnesses with clear acceptance criteria where local optima
