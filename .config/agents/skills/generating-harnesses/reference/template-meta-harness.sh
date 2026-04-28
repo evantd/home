@@ -75,10 +75,19 @@ current_checksum() {
 }
 
 build_meta_prompt() {
-    local exit_reason recent_state recent_progress
+    local interrupt_mode="${1:-no}"
+    local batch_iters="${2:-?}"
+    local batch_duration="${3:-?}"
+    local exit_reason recent_state recent_progress meta_history
     exit_reason=$(cat "$EXIT_REASON_FILE" 2>/dev/null || echo "(no exit reason file)")
-    recent_state=$(tail -200 "$STATE_FILE" 2>/dev/null || echo "(no state file)")
-    recent_progress=$(tail -30 "$PROGRESS_FILE" 2>/dev/null || echo "(no progress file)")
+    # Always show a wide window — meta reassessment should consider the
+    # strategic arc across many cycles, not just this batch. The
+    # "no-op because nothing happened this cycle" failure mode comes
+    # from too-narrow a view.
+    recent_state=$(tail -1500 "$STATE_FILE" 2>/dev/null || echo "(no state file)")
+    # Compressed strategic history: every prior meta-cycle header.
+    meta_history=$(grep -E '^## Meta cycle ' "$STATE_FILE" 2>/dev/null || echo "(no meta cycles yet)")
+    recent_progress=$(tail -200 "$PROGRESS_FILE" 2>/dev/null || echo "(no progress file)")
 
     cat <<META_PROMPT
 # Meta Reassessment — {{NAME}}
@@ -87,23 +96,94 @@ You are the META layer above a hill-climbing harness on branch \`$BRANCH\`.
 The inner harness (\`$INNER_SCRIPT\`) just finished a batch.
 Your job: read the state, diagnose, and apply ONE focused intervention.
 
-## Inner harness exit reason
+$(if [ "$interrupt_mode" = "yes" ]; then cat <<'INTERRUPT'
+
+## ⚠️  This is a USER-REQUESTED CYCLE INTERRUPT — read carefully
+
+The user removed the inner sentinel mid-batch (or before the inner had
+made meaningful progress) while leaving the meta sentinel intact. **This
+is a deliberate signal that the inner appears unproductive and the meta
+should look BROADER than just this cycle.**
+
+**Critical implications for your diagnosis:**
+
+1. **Do NOT default to Mode (C) no-op just because this batch shows
+   little/no signal.** That is the failure mode the user is reacting to.
+   The user already knows this batch has thin signal — that's why they
+   interrupted it. They want you to engage with the LONGER arc.
+
+2. **Treat the full meta history and progress trajectory as primary
+   evidence**, not just the most recent few iterations. Look at the
+   pattern across ALL prior meta cycles (see \`meta_history\` below) and
+   the full progress window. Ask: across the strategic arc, is the
+   inner converging on its hard target? If progress stalled cycles ago
+   and never resumed, the user is right to interrupt — your job is to
+   figure out what structural intervention would unstick it.
+
+3. **Strongly prefer Mode (B) design seed or Mode (A) prompt tuning.**
+   If structural progress has been flat across several recent cycles,
+   that's a structural blocker → Mode (B). If the inner has been chasing
+   the wrong target (e.g. line-golf in doomed code), retighten the
+   prompt → Mode (A).
+
+4. **Mode (C) no-op is allowed only if** the long-term arc clearly shows
+   real structural progress that would resume on the next batch with no
+   changes. Spell out that evidence explicitly if you choose Mode (C);
+   otherwise default to A or B.
+INTERRUPT
+fi)
+
+## This batch's productivity
+
+- **Iterations completed**: $batch_iters (inner cap was \`$INNER_ITERATIONS_PER_CYCLE\`)
+- **Wall-clock duration**: ${batch_duration}s
+- **Exit reason**: \`$exit_reason\`
+
+A short batch (low iterations, short duration) is itself suspicious — it
+means the inner barely had a chance to climb. Don't read "few iterations"
+as "no signal"; read it as "not enough work happened, what's blocking it?"
+
+## Inner harness exit reason (raw)
 
 \`\`\`
 $exit_reason
 \`\`\`
 
-## Recent state file (last 200 lines)
+## All prior meta cycles (compressed strategic history)
+
+\`\`\`
+$meta_history
+\`\`\`
+
+## Recent state file
 
 \`\`\`
 $recent_state
 \`\`\`
 
-## Recent progress (last 30 iterations)
+## Recent progress (last 200 iterations)
 
 \`\`\`
 $recent_progress
 \`\`\`
+
+## Cross-cycle trajectory (REQUIRED reading before deciding)
+
+**Before deciding on any mode, build an explicit picture of the
+structural-progress metric (whatever your project defines as the hard
+target — error count, case count, perf threshold, etc.) across cycles.**
+Do this:
+
+1. Scan the meta_history above and the progress file for the metric's
+   value at the END of each prior cycle. Sketch the series in your
+   diagnosis: e.g. "cycle 5 ended at metric=12, cycle 6 at 7, cycle 7
+   at 7, cycle 8 at 7".
+2. **If the structural metric has been flat across 2+ recent cycles,
+   that IS the signal — regardless of what happened this batch.** A
+   short or zero-iter batch on top of a multi-cycle plateau is
+   overdetermined for intervention, not evidence of "nothing to act on".
+3. Only consider Mode (C) no-op if the cross-cycle trajectory is
+   actively dropping. Spell out the numbers in your diagnosis.
 
 ## Decision tree — pick EXACTLY ONE
 
@@ -199,11 +279,22 @@ while [ "$CYCLE" -lt "$MAX_META_CYCLES" ]; do
     touch "$INNER_SENTINEL"
     : > "$EXIT_REASON_FILE"
 
+    # Capture batch-start metadata so we can quantify productivity.
+    BATCH_START_TS=$(date +%s)
+    PROGRESS_LINES_BEFORE=$(wc -l < "$PROGRESS_FILE" 2>/dev/null || echo 0)
+    PROGRESS_LINES_BEFORE=${PROGRESS_LINES_BEFORE// /}
+
     INNER_EC=0
     RALPH_MAX_ITERATIONS="$INNER_ITERATIONS_PER_CYCLE" bash "$INNER_SCRIPT" || INNER_EC=$?
 
+    BATCH_END_TS=$(date +%s)
+    BATCH_DURATION=$((BATCH_END_TS - BATCH_START_TS))
+    PROGRESS_LINES_AFTER=$(wc -l < "$PROGRESS_FILE" 2>/dev/null || echo 0)
+    PROGRESS_LINES_AFTER=${PROGRESS_LINES_AFTER// /}
+    BATCH_ITERS=$((PROGRESS_LINES_AFTER - PROGRESS_LINES_BEFORE))
+
     EXIT_REASON=$(cat "$EXIT_REASON_FILE" 2>/dev/null || echo "(unknown — no exit reason file)")
-    log "Inner finished. exit=$INNER_EC reason=$EXIT_REASON"
+    log "Inner finished. exit=$INNER_EC reason=$EXIT_REASON iters=$BATCH_ITERS duration=${BATCH_DURATION}s"
 
     # Don't waste meta cycles on amp infrastructure problems.
     if echo "$EXIT_REASON" | grep -q '^amp_outage:'; then
@@ -212,18 +303,32 @@ while [ "$CYCLE" -lt "$MAX_META_CYCLES" ]; do
         continue
     fi
 
-    # User-driven stop propagates up.
+    # Detect interrupt-or-suspicious-short-batch.
+    #  - If META sentinel ALSO gone → user wants the whole thing stopped.
+    #  - If exit reason says sentinel_removed → user-requested cycle interrupt.
+    #  - If batch is suspiciously short (<= 2 iters AND < 5 min) → treat
+    #    as effectively interrupted regardless of exit reason. The signal
+    #    is "inner barely produced anything", which is itself a reason
+    #    for the meta to look broader.
+    INTERRUPT_MODE="no"
     if echo "$EXIT_REASON" | grep -q '^sentinel_removed:'; then
-        log "Inner stopped via sentinel — assuming user wants meta to stop too."
-        break
+        if [ ! -f "$META_SENTINEL" ]; then
+            log "Inner stopped via sentinel AND meta sentinel also gone — full stop."
+            break
+        fi
+        log "Inner sentinel removed but meta sentinel intact — treating as user-requested cycle interrupt; running meta reassessment with broader-history framing."
+        INTERRUPT_MODE="yes"
+    elif [ "$BATCH_ITERS" -le 2 ] && [ "$BATCH_DURATION" -lt 300 ]; then
+        log "Suspicious short batch (iters=$BATCH_ITERS, duration=${BATCH_DURATION}s) — treating as effectively interrupted; running meta reassessment with broader-history framing."
+        INTERRUPT_MODE="yes"
     fi
 
-    log "===== Cycle $CYCLE — meta reassessment ====="
+    log "===== Cycle $CYCLE — meta reassessment (interrupt_mode=$INTERRUPT_MODE iters=$BATCH_ITERS duration=${BATCH_DURATION}s) ====="
 
     HEAD_BEFORE=$(git_head)
     CHECKSUM_BEFORE=$(current_checksum)
 
-    build_meta_prompt > "$META_PROMPT_FILE"
+    build_meta_prompt "$INTERRUPT_MODE" "$BATCH_ITERS" "$BATCH_DURATION" > "$META_PROMPT_FILE"
     log "Meta prompt: $META_PROMPT_FILE ($(wc -l < "$META_PROMPT_FILE") lines)"
 
     META_AMP_EC=0

@@ -140,8 +140,13 @@ amp itself to reassess.
   knows why it stopped: `batch_complete`, `stagnant`, `amp_outage`,
   `sentinel_removed`.
 - **Meta** (new wrapper): runs inner with a short batch size (10-20 iters),
-  reads the exit reason + last 200 state-file lines + last 30 progress lines,
-  then calls amp with a meta prompt. Meta amp picks ONE intervention:
+  reads the exit reason plus a **wide history window** (last ~1500 state-file
+  lines, last ~200 progress lines, AND a compressed list of every prior
+  `## Meta cycle` header), then calls amp with a meta prompt. The wide
+  default is deliberate: meta reassessment must reason about the strategic
+  arc across many cycles, not just this batch — narrow windows produce
+  "no signal this batch → Mode-C no-op" errors precisely when intervention
+  is most needed. Meta amp picks ONE intervention:
   - **(A) Harness tuning** — edits the inner script (prompt, gates, capture).
     Validated by `bash -n`.
   - **(B) Design seed** — edits the codebase to unblock structural problems.
@@ -151,6 +156,45 @@ amp itself to reassess.
 - Meta skips its amp call on `amp_outage` (sleeps and retries inner) and
   stops if the user removes the inner sentinel.
 
+### Suspicious-short-batch: an inferred signal
+
+The template auto-detects two kinds of "this cycle didn't produce real signal"
+events and treats both as triggers for the broader-history framing:
+
+1. **Explicit cycle interrupt**: User removes the inner sentinel while the
+   meta sentinel stays. Inner writes `sentinel_removed:` to its exit-reason
+   file (with a fallback path that catches removal during the inter-iteration
+   sleep). Meta sees the reason and flips `INTERRUPT_MODE=yes`.
+
+2. **Suspicious short batch**: Inner produced ≤2 iterations AND ran <5
+   minutes (regardless of exit reason). This is itself evidence that
+   "nothing happened this batch" — could be silent interruption, a hung
+   amp, an environmental glitch, or just a malformed iteration. The meta
+   shouldn't read short batches as "no signal — Mode C"; it should read
+   them as "the inner barely had a chance to climb, what's blocking it?"
+
+Both paths set `INTERRUPT_MODE=yes`, which prepends an explicit warning to
+the meta prompt:
+
+- "Do NOT default to Mode (C) no-op just because this batch shows little
+  signal — that's the failure mode the user is reacting to."
+- "Treat the full meta history and progress trajectory as primary evidence,
+  not just the most recent few iterations."
+- "Strongly prefer Mode (B) design seed or Mode (A) prompt tuning."
+- "Mode (C) is allowed only if the long-term arc clearly shows real
+  structural progress that would resume with no changes."
+
+The template also ALWAYS includes a "Cross-cycle trajectory" section in
+the prompt that requires the meta to sketch the structural-progress
+metric across cycles before deciding. This is mode-independent: even on a
+healthy full-batch cycle, the meta should reason from the multi-cycle arc,
+not just this batch's deltas.
+
+The template tracks `BATCH_ITERS` (lines added to the progress file) and
+`BATCH_DURATION` (wall-clock seconds), passes both into `build_meta_prompt`,
+and surfaces them in a "This batch's productivity" section so the meta can
+quote concrete numbers when reasoning.
+
 ### Cross-script contract
 
 - Inner sentinel: `<repo>/.ralph-<name>-continue` (recreated by meta each cycle)
@@ -158,6 +202,69 @@ amp itself to reassess.
 - Exit reason file: `/tmp/ralph-<name>-exit-reason.txt` (overwritten, not appended)
 - State file: `/tmp/ralph-<name>-state.md` (shared — meta appends `## Meta cycle N` sections)
 - Lock dirs: separate per layer
+
+### Gate-design anti-patterns and remedies (lessons from real runs)
+
+These are recurring failure modes that observable in a hill-climber's
+state file. Most surface as "metrics improving but project not actually
+advancing" — the agent is rationally mining whatever the gate rewards.
+
+**1. Single-metric gate as code-golf substrate.** Any single gate
+criterion (line count, error count, single named metric) eventually
+becomes a substrate for cosmetic mining once the easy wins are gone.
+Symptom: the chosen metric inches downward across many iters while
+no other progress dimension moves. Remedy: require multi-dimensional
+progress — the gate should look at 2-3 distinct metrics representing
+different phases of the work and require movement on at least one
+that ISN'T the easiest one.
+
+**2. Line-count metrics are gameable by line-splitting.** Counting
+"lines containing X" or "lines of function Y" lets the agent split
+an existing line in two and claim growth/shrinkage. Symptom: a metric
+moves but inspecting the diff shows reformatting, not real change.
+Remedy: count occurrences of a specific token/pattern via regex
+(`grep -cE`), not lines.
+
+**3. Wiring-vs-retirement gap.** When the work has TWO axes — adding
+new infrastructure AND retiring the legacy it replaces — agents
+strongly prefer the additive axis (adding is safe, deleting is risky).
+Symptom: coverage/breadth metrics grow but the metric measuring
+"legacy still present" stays flat. Remedy: track both axes explicitly
+and gate on both. After N consecutive additive iters, require a
+retirement iter. Use distinct commit-message prefixes
+(`[coverage]` vs `[demolition]`) so the state file makes the kind
+of each iter machine-parseable.
+
+**4. Post-target regime.** Once the primary metric hits a healthy
+target, the gate that drove it there becomes a misincentive. Symptom:
+`primary_metric < target` is satisfied but agent keeps mining tiny
+primary-metric drops, ignoring secondary structural progress.
+Remedy: add a threshold conditional to the gate — "if `primary < X`,
+require structural progress (other metric must move)".
+
+**5. `STRUCTURAL_FLAT_ITERS` cap.** A general-purpose counter that
+tracks consecutive accepted iters without movement on the
+structural-progress metric (whatever the project's "real progress"
+metric is — case count, retirement count, milestone). Reject the
+N+1th iter and force the agent to engage with the structural axis.
+This is the most reusable single mechanic — combined with multi-axis
+metrics, it prevents most code-golf failure modes.
+
+**6. Commit-prefix protocols.** Require the agent to prefix commit
+messages by the kind of work the iter represents (`[coverage]`,
+`[demolition]`, `[infra]`, `[refactor]`). Makes the state file
+self-classifying for the meta agent and gives the inner agent a
+forced-articulation step that often surfaces "this commit doesn't
+actually fit any category" before the agent commits.
+
+**7. Mode A vs Mode B in practice.** When the meta diagnoses a
+plateau, Mode A (gate/prompt tuning) is preferable when the structural
+infrastructure exists but the agent isn't using it. Mode B (design
+seed) is for when the structural piece is genuinely missing and an
+inner agent — focused on small leaf moves — won't introduce it.
+The signature of "should be A": prompt already names the structural
+target, but the gate doesn't reward it. The signature of "should be B":
+no prior iters even attempt the structural target.
 
 ### When NOT to use a meta layer
 

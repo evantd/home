@@ -297,6 +297,18 @@ while [ -f "$SENTINEL" ]; do
     sleep 5
 done
 
+# Fallback exit-reason write: if the loop exited at the `while [ -f $SENTINEL ]`
+# check (sentinel removed during sleep or before first iteration), no in-body
+# write_exit_reason ran and the file is empty. Meta layer needs a real reason
+# to distinguish cycle-interrupt from other paths.
+if [ ! -s "$EXIT_REASON_FILE" ]; then
+    if [ ! -f "$SENTINEL" ]; then
+        write_exit_reason "sentinel_removed: detected at while-loop check (between iterations)"
+    else
+        write_exit_reason "unknown: loop exited without explicit reason"
+    fi
+fi
+
 echo "=== Ralph stopped after $ITERATION iterations. ===" | tee -a "$LOG_FILE"
 echo ""
 echo "Progress history:"
