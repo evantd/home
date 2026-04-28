@@ -203,6 +203,62 @@ quote concrete numbers when reasoning.
 - State file: `/tmp/ralph-<name>-state.md` (shared — meta appends `## Meta cycle N` sections)
 - Lock dirs: separate per layer
 
+### Pair-programming with the meta loop (manual interventions)
+
+The meta loop is not a black box — you (the human pair) can intervene
+directly on the harness whenever you spot something the inner agent or
+the meta agent is missing. The meta will keep cooperating cleanly if
+you record your intervention in a way it can read.
+
+**Pattern: manual meta-cycle entries.** Append a section to the state
+file in the same format meta uses, with `manual` in the mode tag:
+
+```
+## Meta cycle N — A: manual harness intervention (user-applied, not from amp meta)
+
+**Diagnosis**: <what you noticed>
+**Action**: <what you changed, with file paths and line numbers>
+**Validation**: <bash -n result, md5 unchanged, etc.>
+**Note for next meta cycle**: Strong default to Mode (C) no-op — this
+  intervention covers what meta would have done. Override Mode-C only if:
+  (a) inner produces N+ rejects citing the new gate criteria,
+  (b) <project-specific structural metric> keeps growing without
+      <hard-target metric> following,
+  (c) inner finds a new gaming pattern.
+**Expected next-batch effect**: <what should improve>
+```
+
+Replace `N` with the next sequential meta-cycle number (grep
+`^## Meta cycle ` in the state file).
+
+**Why this works:**
+
+- The meta prompt grep's all `^## Meta cycle ` headers into
+  `meta_history` and includes them in every reassessment, so your manual
+  entry appears in the strategic-arc view.
+- The Mode-C default with explicit override conditions gives the meta a
+  decision rule rather than a vague hint — meta agents are good at
+  following rules with concrete triggers.
+- The override conditions act as a safety valve: if your fix didn't
+  actually address the structural blocker, meta will detect it via the
+  cross-cycle trajectory (which is mode-independently required reading)
+  and intervene with a complementary action.
+
+**The override path is feature, not bug.** Meta cycles after a manual
+intervention have been observed to:
+- No-op (most common, when manual fix is sufficient)
+- Add a complementary intervention the manual fix didn't address
+  (e.g., the manual fix updated the gate; meta then noticed a different
+  failure mode the agent was about to mechanically fall into and
+  inserted a worked-example seed into the prompt)
+- Stay ready to escalate to Mode B if subsequent batches still don't
+  produce structural progress
+
+The cycle-interrupt framing (⚠️ "user-requested cycle interrupt — read
+broader") is what gives the meta permission to override your "default to
+Mode C" — and that's exactly what you want when your local fix turned out
+to address only part of the problem.
+
 ### Gate-design anti-patterns and remedies (lessons from real runs)
 
 These are recurring failure modes that observable in a hill-climber's
