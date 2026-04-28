@@ -259,6 +259,73 @@ broader") is what gives the meta permission to override your "default to
 Mode C" — and that's exactly what you want when your local fix turned out
 to address only part of the problem.
 
+### Scope curation: focal-target as a Mode A tool
+
+When the work decomposes into named units (legacy switch arms, error
+clusters, modules, files, sub-features) and the agent flits between
+them without finishing any, **scope-curation** is a third meta-axis
+alongside gate tuning and design seeds. The meta picks ONE target per
+batch; the inner is constrained to it; the meta switches targets when
+the unit is complete or blocked.
+
+**Mechanism**: a file-based focal-target state.
+
+- File: `/tmp/ralph-<name>-focal-target.txt` (read by inner each iter).
+  Empty or missing = no focal constraint (agent operates freely).
+  Non-empty = focal target (e.g., `Case 5`, `auth-module`,
+  `null-deref-cluster`).
+- Inner's `build_prompt` reads the file at iteration time and injects
+  a directive: "Your iter MUST be focused on <target>. Other targets
+  are forbidden."
+- Inner's gate requires commits to be prefixed `[focal:<target>]` when
+  the file is non-empty. Mismatch = reject with structured reason.
+- Agent can signal needed cross-target work via `[crosscase]` (or
+  similar) prefix — that gets rejected too, but the rejection IS the
+  signal: if 3+ such rejects pile up, the meta should pivot the focal
+  target or escalate to Mode B (the target needs design seeding).
+
+**Why file-based and not env-var or GOAL-baked**:
+
+- File is read fresh each iteration → meta can change focus mid-batch
+  without restarting the inner.
+- The GOAL string is captured into bash memory at script start, so
+  rewriting GOAL requires a restart; file reads don't.
+- Persisting the focal target in a file gives the meta a stable
+  read-target across reassessments.
+
+**When to use it**:
+
+- Plateau where the structural-progress metric is flat across cycles
+  but the leading-indicator metrics keep moving (the wiring-vs-retirement
+  gap, but generalized).
+- Project decomposes into nameable units that can be completed
+  independently in the abstract, even if shared scaffolding is needed
+  in practice.
+
+**When NOT to use it**:
+
+- Single-objective harnesses (drive errors to zero) — there's nothing
+  to focus on; just one number.
+- Refactors where every change touches many units — the constraint
+  becomes a barrier rather than a forcing function.
+- Early in a run when the problem space is still being explored — the
+  meta won't yet know which target is the right one to pick.
+
+**Pivot triggers** (when to change the focal target):
+
+- Target completed (structural metric drops, focal commit acknowledges
+  retirement) → pick the next-cheapest unfinished target.
+- 3+ consecutive scope-violation rejects → either the target was wrong,
+  or the agent has identified a real cross-target dependency. Either
+  pivot to a different target or escalate to Mode B.
+- Explicit `[crosscase]` commits with stated reasons → likely Mode B
+  signal: the target needs design infrastructure the inner agent
+  won't introduce.
+
+This pattern is currently used in the RN-2488 harness (the inner-script
+focal-case mechanism). The meta-prompt references the file path
+explicitly so the meta agent can write to it as a Mode A action.
+
 ### Gate-design anti-patterns and remedies (lessons from real runs)
 
 These are recurring failure modes that observable in a hill-climber's
