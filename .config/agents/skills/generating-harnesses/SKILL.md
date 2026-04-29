@@ -259,6 +259,123 @@ broader") is what gives the meta permission to override your "default to
 Mode C" — and that's exactly what you want when your local fix turned out
 to address only part of the problem.
 
+### Mode B by cherry-pick: salvaging rejected structural commits
+
+When a hill-climber gate rejects a commit for **non-structural reasons**
+(cadence cap, helper-investment ceiling, structural-flat-iters limit) but
+the commit itself is structurally correct — passes the hard correctness
+gates, addresses a previously-named blocker — the meta can salvage it as
+a Mode B seed instead of authoring fresh code.
+
+**Recognition signal** (read rejected diffs in the state file):
+
+- All hard correctness gates pass (md5/lint/build/typecheck/test) — the
+  agent's diff is sound.
+- The reject reason names a *timing* or *budget* constraint, not a
+  correctness or spirit issue (e.g., "3rd consecutive coverage-only iter",
+  "cluster grew by N > ceiling", "ir_calls didn't grow alongside
+  case_drop").
+- The commit message or a recent `[crosscase]` reject names a structural
+  blocker the diff plausibly addresses.
+
+**Why prefer cherry-pick over authoring a fresh seed**:
+
+- The agent's design has already been validated against the live tree;
+  you have higher confidence than a fresh-author seed.
+- It's the smallest reversible structural unblock — no scope creep
+  beyond what the inner already attempted.
+- It preserves productive follow-on work for the next inner batch
+  (extending the seeded pattern to other sites is leaf-level work the
+  inner does well).
+
+**Mechanism**:
+
+1. `git cherry-pick --no-commit <rejected-sha>` to apply the agent's diff.
+2. Re-validate against the harness's hard gates — the cherry-pick
+   context may differ from the original (drift between when the agent
+   wrote it and when you apply it).
+3. Commit with a `[META design seed]` prefix and rationale explaining
+   what gate misfired and why the seed is structurally correct.
+4. Push if the harness pulls from origin; otherwise leave the commit
+   local.
+
+**When NOT to cherry-pick**:
+
+- The rejected commit only addresses a metric, not a named blocker —
+  could be a gaming attempt.
+- The diff is large enough that you can't be confident it's
+  structurally correct without a full review.
+- No prior `[crosscase]` or terminal-blocker signal exists — context
+  for "this was the right move at the wrong time" is missing.
+
+**Mode A complement**: cherry-pick salvages the work that already
+happened; Mode A (relax the gate) lets future iters of the same shape
+pass cleanly. Often the right play is both, but for a single-cycle
+decision, cherry-pick gives you the structural progress immediately
+without a permanent gate change you may regret.
+
+### Mode A by metric tightening: retroactively recognizing gaming
+
+Cherry-pick salvages legitimately-rejected work. The opposite move
+exists too: **tightening a metric to retroactively recognize
+legitimately-accepted-but-gamed work**. When a "victory" condition
+fires (e.g., `classify_cases == 0`) and the codebase is *not* at the
+spirit's end state, the proxy was too loose. The remedy is to expand
+its definition so the relocated/renamed dispatch logic is counted.
+
+**Recognition signal**:
+
+- A primary metric reaches its target value, but the spirit checklist
+  fails (the dispatcher is not actually thin; the IR module does not
+  actually own the logic; the codebase is not actually simpler).
+- You can spot-grep the codebase and find the dispatch idiom living
+  under a syntactic variant the regex didn't match: extracted helpers,
+  renamed identifiers (`_br === 'X'` instead of `ref.kind === 'X'`),
+  destructured shapes (`const { kind } = ref` then `kind === 'X'`),
+  type-narrowing predicates (`isProducerKey(ref)` doing the same job).
+- The gamed accepts trace back to anti-patterns #2 (helper extraction)
+  or #5 (dispatch renaming), but were not caught at the time because
+  the metric's scope or syntactic match was too narrow.
+
+**Mechanism**:
+
+1. Diagnose which syntactic forms host the relocated dispatch. Spot-grep
+   for the equivalent idioms (`=== 'lowercaseId'`, predicate calls
+   that switch on a discriminator, etc.).
+2. Expand the metric: either widen `RALPH_SCOPE_AWK` to capture the
+   relocated helpers, or generalize the regex to match the renamed
+   form (`=== '[a-z][a-zA-Z]+'` instead of `ref\.kind === '[a-z]'`).
+3. Spot-check: run the new metric against the live tree and verify the
+   count matches the actual remaining dispatch sites.
+4. Document in the meta-cycle entry: "previously-zero count is now N —
+   those are the relocated X dispatch checks scattered across {helpers}".
+5. Add an explicit anti-pattern note to the inner GOAL: "Do NOT introduce
+   more module-scope arrows or rename helpers to evade the new scope —
+   the tightened metric counts the dispatcher idiom regardless of where
+   it lives."
+
+**Why this is a Mode A intervention, not Mode B**:
+
+- No code changes — only the gate definition shifts.
+- The work the inner needs to do does not change in kind, only in
+  visibility: the dispatch logic was always there; now the metric
+  reflects it.
+- The inner can resume immediately on the next iter; no design seed is
+  needed.
+
+**Watch for the regret cost**: tightening the metric makes the count
+*go up*, which can look like regression and demoralize the loop's
+narrative. Frame it explicitly in the meta-cycle entry: "the previous
+count was artificially low (gamed); the new count is the honest
+measure". The trajectory before the tightening is not invalidated; the
+zero-line is just redrawn at a more honest position.
+
+**When to consider tightening prophylactically**: if you can name a
+syntactic form the metric *would* miss before the agent finds it,
+preempt by widening the scope at design time. The cost of a slightly-
+larger metric is much lower than a multi-cycle game-detect-and-tighten
+cycle.
+
 ### Scope curation: focal-target as a Mode A tool
 
 When the work decomposes into named units (legacy switch arms, error
@@ -404,6 +521,29 @@ wherever they live. Even better: track the metric over a *type-system*
 or *AST* scope (e.g., "discriminator unions remaining") that's
 refactor-stable.
 
+**9. Subsumption-via-compression mismodeled by anti-gaming gates.**
+Anti-gaming rules of the shape `case_drop > 0 AND ir_growth < case_drop
+AND lines_drop < 2*case_drop → reject` (designed to catch syntactic
+switch→if/else rewrites, anti-pattern #1) misfire on legitimate
+**subsumption-via-compression**: where N per-kind dispatchers collapse
+into a single IR call whose `compile` already handles each variant.
+In subsumption, `ir_growth` can go *negative* (5 dispatcher calls →
+1 unified call) AND `lines_drop` is modest (a dense dispatch chain
+becomes one line, saving ~N lines, not 2N). Symptom: the agent
+explicitly anticipates the misfire ("subsumption naturally compresses
+ir_calls — this won't fit the gate's growth-only model") and the gate
+indeed rejects a structurally-correct iter. Remedy: model
+subsumption as a third demolition shape alongside pure-routing
+(`ir_growth ≥ case_drop`) and pure-deletion (`lines_drop ≥ 2*case_drop`).
+A practical rule: accept when `case_drop > 0 AND lines_drop ≥ case_drop
+AND prior ir_coverage already covers the dropped kinds`. The
+last conjunct is the key — it ensures the dropped dispatchers had a
+real IR replacement set up in earlier coverage iters, distinguishing
+subsumption from anti-pattern #1's syntactic rewrite. Watch for the
+agent narrating the gap in advance: when an inner output names the
+gate-model gap before the rejection, that's high-signal — a Mode A
+gate extension is usually the right next move.
+
 ### The Goodhart trap: metrics need intent framing
 
 Every anti-pattern above is a manifestation of the same root issue:
@@ -463,6 +603,148 @@ true incentive (the spirit) just as legible as the proxy incentives
 (the metrics). Without the spirit, the agent has nothing to fall back
 on when the metrics produce ambiguous signals — and gaming becomes
 the path of least resistance.
+
+**Validation signal: agent self-correction.** When the recipe is
+working, you'll see the inner *retry* a rejected anti-pattern with a
+real version on the next iter. Example from the RN-2488 run: iter 7
+was a `case_drop=1, ir_growth=0, lines_drop=0` syntactic switch→if/else
+rewrite (anti-pattern #1), rejected with that reason quoted in the
+state file. Iter 8 produced the same retirement target as a real
+deletion (`case_drop=1, lines_drop=2`) — the agent read the reject
+reason, recognized which anti-pattern fired, and re-attempted with a
+spirit-aligned move *without any meta intervention*. This is what
+"epistemic respect" looks like in practice: clear anti-pattern names
+in the prompt + clear anti-pattern callouts in the rejection messages
+let the agent self-correct without further harness work. If you see
+this pattern, the prompt is doing its job; if you don't, the rejection
+messages probably aren't naming the anti-pattern explicitly enough.
+
+### Forced articulation: making the agent justify its iter
+
+Mechanical metrics are cheap to evaluate but easy to game. LLM-as-judge
+is hard to game but expensive (doubles per-iter cost) and adds variance.
+**Forced articulation** is a near-zero-cost middle ground: require the
+agent's commit message to contain explicit answers to spirit-aligned
+questions before committing.
+
+The pattern: append a "Pre-commit articulation (REQUIRED)" section to
+the GOAL prompt that requires three short paragraphs in every commit
+message body:
+
+1. **Spirit advanced** — 1-3 sentences naming which spirit criterion
+   this iter moves toward, with concrete reference to the change
+   (which symbol, which line range, which legacy structure went away).
+2. **Anti-pattern check** — 1-2 sentences naming which anti-pattern
+   this iter MIGHT look like and why it isn't. If the agent can't
+   construct a plausible "this might look like #N because..." sentence,
+   it's a signal that the agent isn't engaging with the anti-pattern
+   list.
+3. **Next iter** — 1 sentence naming the natural follow-up move. If
+   the agent can't name a follow-up, the iter may be a dead-end and
+   they should reconsider scope.
+
+**Why this works**:
+
+- Agents reliably struggle to write coherent justification for fake
+  progress. A vague "Spirit advanced: this makes things better" is
+  itself a signal — the meta can read it as "agent could not name a
+  concrete advance".
+- Costs nothing extra (no judge LLM call). The agent already writes a
+  commit message; this just constrains its shape.
+- Captured in git history. The meta sees these on every cycle without
+  any extra plumbing — `git log` already exposes them.
+- Forces the agent to pre-empt the meta's evaluation. Articulating
+  "this might look like anti-pattern #N because..." in advance is
+  cheaper than the meta detecting it after the fact.
+
+**When forced articulation alone isn't enough**:
+
+- Agent writes formulaic boilerplate to satisfy the requirement
+  without engaging. Symptom: every iter says "Spirit advanced: moves
+  toward thin dispatcher" verbatim. Remedy: tighten the requirement
+  ("be concrete: name the symbol, the line range, the legacy structure
+  that went away") and have the meta flag iters with low articulation
+  variance.
+- The agent's articulation is honest but the meta can't act on it
+  fast enough. This is the cycle-length problem; see below.
+
+**Escalation order** when forced articulation isn't sufficient:
+
+1. **Tighten the articulation requirement** (free, fastest).
+2. **Suspicious-pattern triggered judge** — LLM judge runs only on
+   accepts where heuristics fire (case_drop > ir_growth, large
+   `[refactor]`, ceiling-adjacent). Concentrates LLM cost on
+   high-risk decisions.
+3. **Judge-as-commentary** — LLM judge produces a one-line annotation
+   on each accept ("looks like genuine subsumption" / "looks like #1
+   syntactic rewrite"). Doesn't gate; feeds the meta richer signal.
+4. **Per-iter LLM judge** — most expensive, highest variance. Only if
+   1-3 are insufficient. Note: the judge becomes the new metric to
+   game; you've shifted the gaming target rather than eliminated it.
+
+The default position should be "forced articulation + meta layer".
+The meta IS already an LLM judge; it just runs every N iters instead
+of every iter. The cost amortization is favorable when N is right —
+which means the right escalation often isn't a per-iter judge but
+**adjusting the meta cycle length** (see next).
+
+### Cycle length as a Mode A lever
+
+When the meta is correctly diagnosing gaming or misalignment but the
+correction comes too late (the inner has already accumulated N gamed
+accepts before the meta intervenes), the answer is often *not* to add
+a per-iter judge — it's to shorten the meta cycle.
+
+Make `INNER_ITERATIONS_PER_CYCLE` (or equivalent) **adjustable
+mid-run** without restarting the meta loop:
+
+- Read the value from a file (e.g., `/tmp/ralph-<name>-inner-iters.txt`)
+  at the top of each meta cycle, with sane bounds (e.g., 1-100) and a
+  fallback to the env-var default.
+- Make this an explicit Mode A action in the meta's decision tree.
+- Document write-targets in the meta prompt so the meta agent knows
+  the file path.
+
+**Shorten when**:
+
+- Iters look gamed and you want faster correction (more meta cycles
+  per unit of inner work).
+- The inner is in an exploratory phase where you want tight oversight.
+- A prior cycle made a Mode B seed and you want to verify the inner
+  consumes it cleanly before committing many iters to a possibly-wrong
+  path.
+
+**Lengthen when**:
+
+- The inner is making consistent honest structural progress and meta
+  intervention is mostly Mode C no-op.
+- Inner iters are slow and per-cycle wall-clock cost is dominated by
+  meta overhead.
+- The work has entered a mechanical-extension phase where each iter is
+  a small variation on the prior, with low risk of gaming.
+
+**Why file-based, not env-var or harness edit**:
+
+- Env-var requires a meta restart. File is hot.
+- Harness-edit (changing the script) is a heavier intervention with a
+  larger blast radius. File-based is targeted.
+- Same design rationale as the focal-target file (read fresh per cycle,
+  no restart needed).
+
+**Implementation sketch** (bash):
+
+```bash
+# Top of each meta cycle:
+if [ -s "$INNER_ITERS_FILE" ]; then
+    FILE_ITERS=$(tr -d '[:space:]' < "$INNER_ITERS_FILE")
+    if [[ "$FILE_ITERS" =~ ^[0-9]+$ ]] && [ "$FILE_ITERS" -ge 1 ] && [ "$FILE_ITERS" -le 100 ]; then
+        INNER_ITERATIONS_PER_CYCLE="$FILE_ITERS"
+    fi
+fi
+```
+
+Cycle-length adjustment is the cheapest scaling lever for catching
+gaming faster. Reach for it before reaching for a per-iter LLM judge.
 
 ### When NOT to use a meta layer
 
