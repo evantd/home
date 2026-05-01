@@ -544,6 +544,30 @@ agent narrating the gap in advance: when an inner output names the
 gate-model gap before the rejection, that's high-signal — a Mode A
 gate extension is usually the right next move.
 
+**10. Wrap-loophole: proxy-metric growth via primitive-wrapping
+without spirit advancement.** A close cousin of #1 but with a specific
+shape: once a structural primitive (e.g., `arrayBufferBegin/End`) has
+been seeded, the agent discovers that *wrapping* existing call sites
+through the new primitive grows the proxy metric (`ir_calls`,
+`primitive_uses`) by 2 per wrap. Each wrap is itself structurally
+fine — the wrapped form is at least as good as the unwrapped — but
+none of the wraps retire any discriminator, so the spirit metric
+(case count, primary structural target) stays flat. Symptom: 5+
+consecutive accepted iters all of the form "wrap swap-triple at line
+N through primitive P, ir_calls +2, classify_cases unchanged"; the
+inner script's prompt may even document the substrate as exhausted
+("STOP wrapping unless required as a precondition") but the
+acceptance gate keeps approving wraps because they grow the proxy.
+Remedy: tighten the proxy-only acceptance lane. Either cap consecutive
+wrap iters explicitly (`WRAP_ONLY_ITERS` counter alongside
+`STRUCTURAL_FLAT_ITERS`), or require that any iter relying on the
+proxy-growth lane ALSO retires a discriminator literal in the focal
+scope. The general principle: when a Mode B seed creates a new
+primitive, the gate must distinguish "first use of the primitive
+(coverage growth)" from "Nth use of the primitive (mechanical
+extension)" — the first deserves its own lane; the latter should be
+treated as `[refactor]`/cosmetic and gated accordingly.
+
 ### The Goodhart trap: metrics need intent framing
 
 Every anti-pattern above is a manifestation of the same root issue:
@@ -688,6 +712,80 @@ of every iter. The cost amortization is favorable when N is right —
 which means the right escalation often isn't a per-iter judge but
 **adjusting the meta cycle length** (see next).
 
+### Default-Mode-A bias and prescriptive Mode-B triggers
+
+Empirically, meta agents over-pick Mode A (gate/prompt tuning) and
+under-pick Mode B (design seed). Across one observed long-running
+harness (42 meta cycles), only 2 cycles were Mode B; the rest were
+Mode A or Mode C. Three structural reasons:
+
+1. **Mode A is cheaper.** Editing a script is one diff; authoring a
+   design seed requires understanding the codebase deeply enough to
+   add a new primitive, validating it against the hard correctness
+   gates, and pushing.
+2. **Mode A feels reversible.** A prompt edit can be undone next
+   cycle; a design seed lives in the codebase.
+3. **Descriptive guidance underweights Mode B.** When the meta prompt
+   says "prefer Mode B when classify_cases is flat for 5+ iters", the
+   meta tends to read it as a soft suggestion. The cycle still picks
+   Mode A "for now" and the plateau persists.
+
+**Remedy: prescriptive trigger checklists.** Replace soft guidance
+with mechanical scoring. Example pattern (transplant to any harness
+with similar structure):
+
+```
+### Rule 1: Mode-B trigger checklist (any TWO → Mode B is the default)
+
+Score the current state on these signals; if ≥2 fire, Mode B is the
+default unless you can articulate a specific reason a Mode A change
+would unblock the inner faster:
+
+- <primary metric> flat across 3+ recent cycles (cross-cycle plateau)
+- Inner produced an explicit [crosscase] commit body naming a missing
+  primitive (the named primitive IS the seed candidate)
+- Wrap-loophole signature: proxy metric grew but spirit metric stayed
+  flat for 5+ accepted iters
+- Last meta cycle was Mode A prompt-tuning AND it did not move the
+  primary metric (a second Mode A is unlikely to help)
+
+If you choose Mode A despite ≥2 firing, your entry must explicitly
+state which Mode B seed you considered and why it would NOT work.
+Default-to-A without that justification is the failure mode this
+rule corrects.
+```
+
+**Why a checklist works where soft guidance doesn't.** Agents are
+reasonably good at scoring a fixed list of named conditions, less
+good at "weigh these vague factors holistically and decide". The
+checklist also gives the meta a **forced articulation** path when it
+chooses Mode A despite triggers firing — exactly the same forced-
+articulation pattern the inner uses for its commit-message contract,
+applied at the meta layer.
+
+**Mode C eligibility: tighten symmetrically.** Pair the Mode-B
+checklist with a Mode-C eligibility rule. Default Mode C when no
+intervention is needed creates a parallel failure mode: the meta
+no-ops on a plateau "because nothing has changed since last cycle"
+when actually nothing has changed *because* the meta keeps no-opping.
+Concrete pattern:
+
+```
+### Rule N: Mode C is allowed ONLY when
+
+You may pick Mode C only if all three hold:
+1. <primary metric> strictly dropped in the most recent batch.
+2. Movement on the primary metric was paired with movement on
+   the spirit metric (no proxy-only growth).
+3. Cross-cycle trajectory shows <primary metric> dropping in
+   2+ of the last 3 cycles.
+```
+
+Together, the Mode-B-default and Mode-C-only-when rules push the
+meta toward intervention by default — which is the right bias for
+plateau states. The Mode-A path remains available for genuine
+prompt-tuning needs but no longer dominates by default.
+
 ### Cycle length as a Mode A lever
 
 When the meta is correctly diagnosing gaming or misalignment but the
@@ -722,6 +820,36 @@ mid-run** without restarting the meta loop:
   meta overhead.
 - The work has entered a mechanical-extension phase where each iter is
   a small variation on the prior, with low risk of gaming.
+
+**REQUIRED triggers (don't leave the lever idle).** Like the
+default-Mode-A bias, meta agents tend to leave cycle-length at its
+default forever — even when the harness state clearly calls for
+adjustment. Across one observed run, the cycle-length file was never
+written across 42 cycles, including the cycles immediately following
+two Mode B seeds (where shortening to verify clean consumption was
+the documented best practice). Remedy: promote the most important
+shorten-cases from "consider" to **REQUIRED unless overridden with
+rationale**, and require every meta-cycle entry to include a
+`Cycle length: N (rationale)` line so the choice is forced into
+articulation. Concrete required-cases worth transplanting:
+
+- **After ANY Mode B seed**: shorten to a small value (e.g., 5) for
+  the verification cycle. You need a tight feedback loop to confirm
+  the inner consumes the seed cleanly before committing to longer
+  batches on a possibly-wrong path.
+- **After 5+ accepted iters with no spirit-metric movement**:
+  shorten to a small value so the meta gets eyes on the pattern
+  faster. Long batches on a plateau just accumulate gameable wraps.
+- **Lengthen** is allowed only when the cross-cycle trajectory is
+  genuinely climbing on the spirit metric AND the most recent batch
+  was 80%+ accepts. Anything weaker than this should keep the
+  default.
+
+If none apply, the default stands — but the meta still records the
+non-choice with rationale, which prevents "forgot to consider it"
+errors. The forced `Cycle length: N (rationale)` line in every
+meta-cycle entry is the same forced-articulation pattern applied
+at the meta-prompt-design layer.
 
 **Why file-based, not env-var or harness edit**:
 
