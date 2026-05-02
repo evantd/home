@@ -874,6 +874,142 @@ fi
 Cycle-length adjustment is the cheapest scaling lever for catching
 gaming faster. Reach for it before reaching for a per-iter LLM judge.
 
+### Prompt budget management
+
+Long-running harnesses accumulate prompt content faster than they
+shed it. Each Mode B seed adds variant declarations + apply-time
+helpers + JSDoc preambles to embedded source files; each meta cycle
+adds a READ-FIRST directive to GOAL; each accepted iter grows the
+state file. Without active management, the inner-iter prompt
+inflates until the agent hits context-limit errors mid-iteration —
+producing zero work for that iter while consuming wall-clock time
+and burning tokens on retries.
+
+The naive remedy (elision: cut the middle of large embedded files)
+buys time but is asymptotically losing: the file grows faster than
+elision can keep trimming. After 2-3 rounds of "tighten elision",
+prompt size is back to the prior failure threshold and the next
+round of elision has less material to safely remove.
+
+**The structural fix: stop embedding full files. Embed only the
+focal locus densely; index everything else.** Concretely:
+
+- **Embed in full**: the focal function the agent reasons about
+  every iter (e.g. the dispatcher being collapsed, the test suite
+  being driven to zero, the API being refactored). The agent works
+  with this content directly and must have it in context.
+- **Embed as type-union signatures only**: discriminated unions the
+  agent extends. The shape of the union is what matters, not the
+  JSDoc preambles or the implementation. Extract via `awk` for the
+  declaration boundary; print only the `kind: '...'`/`op: '...'`
+  literals.
+- **Embed as a code index**: exported declaration signatures for
+  any file the agent might need to reference. Fits in 5-10KB even
+  for large codebases. Crucially, **omit line numbers** — they
+  invalidate as iterations modify files. Tell the agent explicitly
+  the index is "for discovery only; grep for accurate line
+  numbers".
+- **Drop entirely**: full file bodies, JSDoc preambles, switch-case
+  bodies, helper implementations. The agent has `Read`/`Grep`
+  tools; let it fetch what it needs on demand. The cost of one
+  Read call is much lower than the cost of carrying the file in
+  every iter's prompt.
+
+In one observed harness, this restructure took the inner prompt
+from ~285KB (with extensive elision) to ~50KB + GOAL — the focal
+function itself was ~10KB; the type unions ~3KB; everything else
+indexed in ~5KB. The agent's behavior didn't change; the
+context-limit failures stopped.
+
+### Meta-curated index files via Task subagent
+
+The natural place to generate the code index is the meta cycle —
+it has access to a strong agent (via `Task`) for one-shot
+extraction work, and runs once per N inner iters so the index's
+"approximate" status is bounded.
+
+**Pattern**: each meta cycle, before applying its one Mode A/B/C
+intervention, the meta delegates index regeneration to a Task
+subagent and writes the result to a known path the inner harness
+reads. The inner harness's prompt builder embeds the file if
+present; falls back to a simple inline grep otherwise (so the
+first cycle after harness setup still works).
+
+```bash
+# In the inner script (top-level config):
+CODE_INDEX_FILE="/tmp/ralph-<name>-code-index.md"
+
+# In build_prompt:
+if [ -s "$CODE_INDEX_FILE" ]; then
+    echo "*(Meta-curated code index, refreshed each meta cycle.)*"
+    cat "$CODE_INDEX_FILE"
+else
+    # Inline grep fallback
+    grep -E '^export (function|type|interface|const)' "$WORK_DIR"/src/**/*.ts
+fi
+```
+
+```
+# In the meta prompt (under "required pre-decision duty"):
+Each cycle, delegate to a Task subagent to regenerate
+/tmp/ralph-<name>-code-index.md. The index lists exported
+functions/types/variants. NO line numbers — iterations modify
+the files between cycles, so iters MUST grep for accurate
+locations. Header the file with "APPROXIMATE — for discovery
+only".
+```
+
+The "approximate, no line numbers" framing is load-bearing.
+Preserved line numbers create false confidence — the agent reads
+"line 1995" in the index, jumps there, finds something else, and
+either reads the wrong section or wastes context re-grepping.
+Approximate indexes force the agent to grep for current locations,
+which is the correct behavior whether the index is fresh or stale.
+
+### GOAL bloat audit as recurring meta duty
+
+GOAL strings (the immutable per-iter prompt header) grow
+monotonically across cycles for the same reason files grow:
+each cycle's lessons get appended as READ-FIRST sections, anti-
+pattern callouts, recipe templates. None get retired.
+
+**Add to the meta's pre-decision duty**: each cycle, scan GOAL
+for sections referencing focal cases or cycle ranges that ended
+≥5 cycles ago, redundant anti-pattern repeats, obsolete recipe
+templates. Propose trimming them in the meta-cycle entry. The
+trim itself is a Mode A sub-action; combine with the cycle's
+chosen A/B/C intervention OR record as a "would-be Mode A" note
+when picking Mode B/C so the next eligible cycle handles it.
+
+The lesson is general: **anything that grows monotonically without
+explicit trim is a budget bomb**. Code indexes, GOAL, state files,
+embedded examples — all need recurring audits, not one-time
+cleanups. Promote the audits to "required pre-decision duty"
+status so the meta runs them every cycle as muscle memory.
+
+### Pre-decision duties as a structural pattern
+
+The Mode A/B/C decision tree implicitly assumes the meta has one
+job per cycle. But maintenance work (index refresh, GOAL audit,
+state-file truncation) doesn't fit any of A/B/C — it's neither
+prompt tuning nor design seeding nor no-op. Without a place for
+it in the decision structure, maintenance gets skipped.
+
+**Solution**: add a "required pre-decision duty" section that
+runs before the A/B/C decision and is orthogonal to it. The meta
+can pick its one A/B/C intervention AND ALSO perform required
+maintenance. Document the maintenance outcomes on a separate
+`Maintenance:` line in the meta-cycle entry, distinct from the
+`Action:` line that captures the A/B/C choice.
+
+This pattern generalizes: any meta-loop responsibility that's
+"do every cycle" rather than "do when triggered" belongs in
+pre-decision duties, not in the decision tree itself. Other
+candidates: log compaction, dependency-pin freshness checks,
+test-fixture regeneration. Each needs an explicit slot in the
+meta cycle's structure to avoid being silently dropped when
+the meta is focused on the next intervention.
+
 ### When NOT to use a meta layer
 
 - Single-objective harnesses with clear acceptance criteria where local optima
