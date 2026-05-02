@@ -195,6 +195,84 @@ The template tracks `BATCH_ITERS` (lines added to the progress file) and
 and surfaces them in a "This batch's productivity" section so the meta can
 quote concrete numbers when reasoning.
 
+### Inner-loop META-signal early exit
+
+When the inner agent reaches a structural blocker that requires a META
+intervention (a missing primitive, a missing predicate that has to be
+authored by the META layer because the inner agent cannot atomically
+land the seed + the activation), continuing the batch can't unblock —
+META has to act before the next iter can land it. The remaining iters
+in the batch will re-attempt the same blocked recipe and produce no
+useful signal. Concretely, observed cost: ~15-20 minutes per wasted
+iter, so a 5-iter batch with a META-signal at iter 1 burns ~60-90
+minutes before META gets to run.
+
+**The bidirectional contract.** Inner harness scans every commit body
+for a small set of literal phrases ("META-seedable primitive", "next
+META cycle to seed", "MUST be META-seeded"). When detected in an iter
+that did NOT make primary-metric progress (e.g., did not drop the
+structural-cases counter), the harness writes
+`meta_signal_received: ...` to the exit-reason file and breaks out of
+the iter loop. The GOAL prompt instructs the agent to use one of the
+literal phrases when the iter has reached a META-needed blocker — and
+to NOT use the phrase when the iter made primary-metric progress
+(productive iters override) or when speculatively naming a primitive.
+
+**Implementation pattern** (bash):
+
+```bash
+# Inside the iter loop, after accept/reject processing, before STAGNANT/
+# MAX_ITERATIONS checks. ITER_CASE_DROPPED tracks primary-metric progress
+# (set in the accept branch when _cases_dropped > 0; 0 in reject/no-commit).
+if [ -n "$COMMIT_BODY_TEXT" ] && [ "$ITER_CASE_DROPPED" -eq 0 ]; then
+    META_SIGNAL_MATCH=""
+    for phrase in "META-seedable primitive" "next META cycle to seed" "MUST be META-seeded"; do
+        if printf '%s' "$COMMIT_BODY_TEXT" | grep -qF "$phrase"; then
+            META_SIGNAL_MATCH="$phrase"
+            break
+        fi
+    done
+    if [ -n "$META_SIGNAL_MATCH" ]; then
+        write_exit_reason "meta_signal_received: agent flagged META-seedable blocker ('$META_SIGNAL_MATCH')"
+        rm -f "$SENTINEL"
+        break
+    fi
+fi
+```
+
+The accept branch sets `COMMIT_BODY_TEXT=$(git log -1 --pretty=%B)`
+and `ITER_CASE_DROPPED=$([ "$_cases_dropped" -gt 0 ] && echo 1 || echo 0)`.
+The reject branch captures `COMMIT_BODY_TEXT` BEFORE `git reset --hard`
+(after revert HEAD points at the prior accepted commit) and sets
+`ITER_CASE_DROPPED=0`. The no-commit branch clears
+`COMMIT_BODY_TEXT=""` so stale text from a prior iter doesn't trip
+the gate.
+
+**Why a literal-phrase contract beats heuristic detection.** Free-form
+"the agent mentioned META somewhere" detection produces false
+positives every time the agent name-drops META in passing. A small
+set of fixed phrases makes the contract bidirectional: the GOAL tells
+the agent exactly which phrases the harness watches for, and the
+agent uses them deliberately when blocked. Detection is a literal
+`grep -qF`, no regex tuning needed.
+
+**Why the case_drop override.** Without it, an iter that BOTH retired
+a case AND mentioned META would exit early — losing the productive
+momentum. With the override, productive iters always run to completion
+even if their commit body is verbose; only the genuinely-blocked iters
+trigger the exit.
+
+**Anti-gaming.** The agent only "gains" by exiting when it's actually
+stuck (no metric credit for the early exit; the next batch has to do
+real work). The risk is more about underuse — agents may forget to
+include the literal phrase even when blocked. Mitigate by teaching
+the contract explicitly in GOAL with examples.
+
+The exit reason `meta_signal_received` is distinct from
+`batch_complete` and `stagnant`, so the meta layer can prioritize
+this trigger above ordinary cycle scheduling — it's structurally a
+high-priority intervention request, not just "the batch ended."
+
 ### Cross-script contract
 
 - Inner sentinel: `<repo>/.ralph-<name>-continue` (recreated by meta each cycle)
