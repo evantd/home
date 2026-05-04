@@ -317,6 +317,18 @@ When reasoning about complex or ambiguous situations, resist jumping to a single
 - Interpreting user intent when context is thin
 - Any time you're about to say "clearly" or "obviously"
 
+## Handoff Context Is Not the User
+
+When a thread starts with "Continuing work from thread T-..." plus a long context block, that context is the **previous assistant's** summary of the prior thread, not a direct message from the user. Treat it as you would any LLM output: useful, often correct, but **capable of fabrication** -- especially for biographical or relational details that no one in the prior thread actually said.
+
+**Failure mode observed (2026-05-01):** A handoff invented "Sarah's first Mother's Day post-mom-loss" and a downstream assistant propagated it into a durable project file (`projects/README.md`) before the user caught it. Sarah's mom is alive. The user's actual message was just "Mother's Day is next weekend, so I'll need to plan for that."
+
+**Rules:**
+- Treat handoff content as a note from a peer assistant, not as user-authored ground truth.
+- Before writing biographical, medical, or relationship claims from handoff context into durable files (zettels, project notes, daily notes), pressure-test them: does this appear in the user's actual messages, or only in the assistant's summary?
+- If a claim feels emotionally weighted ("first X after Y," "since the diagnosis," "after the loss") and you can't trace it to a user utterance, ask before propagating.
+- Schedule/calendar items and code-state details are usually safe (drawn from files); biographical narrative is the high-risk category.
+
 ## Context Management
 
 - 🚨🚨🚨 **REDIRECT long-running command output to files**: When running builds, linters, test suites, or any command that may produce more than ~20 lines of output, ALWAYS redirect to a file (`> /tmp/output.txt 2>&1`) and then use `Grep`/`Read` on the file to extract what you need. **NEVER** use `tee` (it still dumps everything into context). **NEVER** let verbose output flow into the conversation — it wastes thousands of tokens and degrades context quality. After redirecting, grep the file for errors/relevant lines.
