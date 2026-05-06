@@ -11,6 +11,14 @@
 # verbs are allowed. Anything else exits 1 with a hint. Outside such repos,
 # pass-through to the real git is transparent.
 #
+# Repo-redirection flags (--git-dir, --work-tree, -C, --bare) opt out of
+# the cwd-based jj check entirely: when the user explicitly targets a
+# different repo, the cwd is irrelevant. Without this, tooling like
+# ~/.zshrc.d/prompt.zsh's getZshrcGitCommit (which does
+#   git --git-dir ~/.git log ...
+# from whatever cwd the prompt fires in) would get blocked when cd'ing
+# into any jj repo.
+#
 # Each block is a friction-point worth logging in the cycle 1 zettel: it's
 # a real-world "I (or some tool acting on my behalf) wanted to escape jj"
 # moment.
@@ -36,10 +44,57 @@ if [[ ! -d .jj ]]; then
   exec "$REAL_GIT" "$@"
 fi
 
+# Walk the arguments to find:
+#   - PASSTHROUGH: any flag that explicitly redirects git to another repo
+#     (--git-dir, --work-tree, -C, --bare). When present, the cwd-based
+#     jj check is irrelevant -- the user is operating on a different repo.
+#   - SUBCMD: the actual git subcommand, skipping past global options and
+#     their values (e.g., `git --no-pager log` -> SUBCMD=log).
+PASSTHROUGH=0
+SUBCMD=""
+skip_next=0
+for arg in "$@"; do
+  if (( skip_next )); then
+    skip_next=0
+    continue
+  fi
+  case "$arg" in
+    --git-dir=*|--work-tree=*|--bare)
+      PASSTHROUGH=1
+      ;;
+    --git-dir|--work-tree|-C)
+      PASSTHROUGH=1
+      skip_next=1
+      ;;
+    -c|--namespace|--super-prefix|--exec-path)
+      skip_next=1
+      ;;
+    --*=*)
+      ;;
+    -*)
+      ;;
+    *)
+      SUBCMD="$arg"
+      break
+      ;;
+  esac
+done
+
+# Explicit repo redirection: pass through.
+if (( PASSTHROUGH )); then
+  exec "$REAL_GIT" "$@"
+fi
+
+# No subcommand at all (e.g., `git`, `git --help`, `git --version`):
+# usage/help output, harmless, pass through.
+if [[ -z "$SUBCMD" ]]; then
+  exec "$REAL_GIT" "$@"
+fi
+
 # Inside a jj-colocated repo: allow only the read-only verbs the original
 # shim allowed. Keep this list tight; expansion is the user's call after
 # observing what tooling actually breaks (that's the data).
-case "${1-}" in
+case "$SUBCMD" in
   log|status|diff)
     exec "$REAL_GIT" "$@"
     ;;
