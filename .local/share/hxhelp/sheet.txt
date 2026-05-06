@@ -1,0 +1,30 @@
+ 
+[;;1m[0m[;;1m[0m[;;1m [0m[;;1mhelix[0m[;;1m [0m                                                                                                                  
+                                                                                                                         
+Motion SELECTS, then verb ACTS.                                                                                          
+[;m[0m[;m[0m[;mwd[0m = select-word-then-delete.                                                                                            
+                                                                                                                         
+[;1m[0m[;1m[0m[;1m▎ [0m[;1mSelect[0m                                                     [;1m[0m[;1m[0m[;1m▎ [0m[;1mEdit[0m                                                      
+                                                                                                                         
+ Key                         │ Action                         Key                        │ Action                        
+─────────────────────────────┼────────────────────────────   ────────────────────────────┼─────────────────────────────  
+ [;mw[0m [;mb[0m [;me[0m                       │ word fwd / back / end          [;md[0m [;mc[0m                        │ delete / change               
+ [;mW[0m [;mB[0m [;mE[0m                       │ long-word (whitespace)         [;my[0m [;mp[0m [;mP[0m                      │ yank / paste after / before   
+ [;mf<c>[0m [;mt<c>[0m                   │ find / till char               [;mr<c>[0m                       │ replace EACH selected char    
+ [;mF<c>[0m [;mT<c>[0m                   │ same, backwards                [;mR[0m                          │ replace selection with yank   
+ [;m;[0m [;m,[0m                         │ repeat / reverse f/t           [;mu[0m [;mU[0m                        │ undo / redo                   
+ [;mx[0m                           │ whole line                     [;m~[0m                          │ swap case                     
+ [;m%[0m                           │ all                            ` / [;mAlt-[0m `                 │ to lower / upper              
+ [;mmiw[0m [;mmaw[0m                     │ inner / around word            |                          │ shell pipe selection          
+ [;ms<re><Ret>[0m                  │ split selection by regex                                  │                               
+                                                                                                                         
+[;1m[0m[;1m[0m[;1m▎ [0m[;1mMove (no[0m[;1m select)[0m                                           [;1m[0m[;1m[0m[;1m▎ [0m[;1mMulti-cursor[0m                                              
+                                                                                                                         
+ Key                         │ Action                         Key                    │ Action                            
+─────────────────────────────┼────────────────────────────   ────────────────────────┼─────────────────────────────────  
+ [;mgh[0m [;mgl[0m                       │ line start / end               [;m,[0m [;mAlt-,[0m                │ drop secondary / primary cursor   
+ [;mgs[0m                          │ first non-whitespace           [;m;[0m [;mAlt-;[0m                │ collapse / flip anchor            
+ [;mgg[0m [;mge[0m                       │ buffer start / end             [;m([0m [;m)[0m                    │ rotate selections                 
+                                                             
+ [;1m[0m[;1m[0m[;1mFull keymap →[0m [;4mhttps://docs.helix-editor.com/keymap.html[0m     
+ 

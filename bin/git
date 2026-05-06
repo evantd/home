@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# git -- wrapper that enforces "no escape hatch" during jj adoption.
+#
+# Lives at ~/bin/git. ~/bin is force-pinned to PATH position 1 by
+# ~/.zshrc.d/zz-bin-first.zsh (and by ~/.zshenv.d/general.zsh for
+# non-interactive shells), so this wrapper shadows the real git for ALL
+# callers: interactive shells, the Amp Bash tool, scripts, hooks,
+# Makefiles, IDE subprocesses.
+#
+# Behavior: inside a jj-colocated repo (cwd contains .jj/), only read-only
+# verbs are allowed. Anything else exits 1 with a hint. Outside such repos,
+# pass-through to the real git is transparent.
+#
+# Each block is a friction-point worth logging in the cycle 1 zettel: it's
+# a real-world "I (or some tool acting on my behalf) wanted to escape jj"
+# moment.
+#
+# Override: invoke the real git directly via its absolute path, e.g.
+#   /opt/homebrew/bin/git push
+# (using the absolute path keeps the choice deliberate; aliasing it back
+# would defeat the purpose.)
+#
+# Remove this file once the jj adoption decision is made. ~/bin will keep
+# its position-1 pinning -- that's a permanent improvement regardless of
+# the jj experiment outcome.
+
+set -u
+
+REAL_GIT="/opt/homebrew/bin/git"
+if [[ ! -x "$REAL_GIT" ]]; then
+  REAL_GIT="$(/usr/bin/which -a git | grep -v "$HOME/bin/git" | head -1)"
+fi
+
+# Outside a jj-colocated repo: transparent pass-through.
+if [[ ! -d .jj ]]; then
+  exec "$REAL_GIT" "$@"
+fi
+
+# Inside a jj-colocated repo: allow only the read-only verbs the original
+# shim allowed. Keep this list tight; expansion is the user's call after
+# observing what tooling actually breaks (that's the data).
+case "${1-}" in
+  log|status|diff)
+    exec "$REAL_GIT" "$@"
+    ;;
+esac
+
+cat >&2 <<EOF
+jj repo (.jj/ present in cwd) -- use jj.
+  Allowed git verbs here: log, status, diff
+  Override: $REAL_GIT $*
+  (Each override is a friction-point. Log it in the cycle 1 zettel.)
+EOF
+exit 1
