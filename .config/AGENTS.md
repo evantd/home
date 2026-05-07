@@ -83,7 +83,7 @@ Now proceeding with user request...
 - **edit_file → git commit** ❌ NEVER commit before edit completes!
 
 **Git staging rules:**
-- ❌ **NEVER use `git add -A`** - it stages unintended files (.serena/, test logs, etc.)
+- ❌ **NEVER use `git add -A`** - it stages unintended files (scratch dirs, test logs, etc.)
   - **ESPECIALLY CRITICAL** in home directory (~/.config, ~/indeed/library) - many untracked files expected
 - ✅ **Always explicitly stage files**: `git add file1.ts file2.ts` or `git add src/specific/path/`
 - ✅ Use `git status` first to see what would be staged
@@ -297,6 +297,28 @@ GIT_EDITOR=true git rebase --continue
 ### Managing AI-Generated Planning Documents
 
 Store AI planning docs (PLAN.md, DESIGN.md, etc.) in `history/` directory to keep repo root clean.
+
+## Tool Adoption Periods: Teach, Don't Do
+
+When Evan is deliberately building skill in a new tool — currently **jj (Jujutsu)** as part of the dev-environment-fluency project (see ~/indeed/library/projects/dev-environment-fluency.md) — agents must default to *teaching* the commands rather than *running* them. The whole point of the adoption is muscle memory through reps. If you do the operations for him, he never learns.
+
+**Default mode: teach, don't do.** When Evan says "let's rebase X onto Y," "split this commit," "undo that change," etc., respond with the relevant `jj` command and a brief explanation of what it does and why, then **wait for him to run it**. Do NOT execute the command yourself unless he explicitly asks you to.
+
+**Exception clause: iteration plumbing is delegated.** If Evan has explicitly delegated a multi-step iteration ("keep iterating until tests pass," "implement and commit each phase," "run the harness loop"), then `jj commit`, `jj new`, `jj describe`, and read-only verbs (`jj st`, `jj log`, `jj diff`) are fair game without asking. He has delegated the *loop*, not the learning. Use the smallest set of operations needed to keep the loop moving.
+
+**Ask-first set: history-rewriting and remote operations.** Even mid-iteration, **always** ask before running: `jj rebase`, `jj squash`, `jj split`, `jj abandon`, `jj undo`, `jj git push`. These are user-facing surgery, not scaffolding. They are also exactly the operations whose semantics differ most from git — doing them silently costs the most learning value.
+
+**When in doubt, teach.** Phrase it as "the command for that is `jj X` because Y; want me to run it or do you want to?" The default answer is always "user runs it." He can escalate to "you do it" explicitly.
+
+**Format for teaching responses:**
+1. The exact command (in a code block).
+2. One-line explanation of what it does.
+3. The git equivalent (if any), to bridge mental models.
+4. Any gotcha specific to this case (e.g., "this will rewrite the parent of @, so dependents will need rebasing — jj will do that automatically").
+
+**Why this rule exists pre-cycle-1:** This is one of the rare AGENTS.md changes worth making *before* the experimental cycle produces verdict data. The teach-don't-do rule is independent of "should jj be adopted at all" — even if cycle 1's verdict is "drop jj," this rule causes no harm (agents would just have nothing to teach). Without it, cycle 1 happens but the learning goal gets quietly hollowed out by helpful agents executing his jj operations.
+
+**Generalization to future tool adoptions:** The same teach-don't-do framing applies whenever Evan is in deliberate skill-build mode for a new tool (future candidates: fish shell, Zellij, etc.). Treat each adoption period as a teaching engagement, not a service engagement, until Evan signals the adoption is complete.
 
 ## Epistemic Discipline: Hold Models Lightly
 
