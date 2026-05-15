@@ -300,25 +300,25 @@ Store AI planning docs (PLAN.md, DESIGN.md, etc.) in `history/` directory to kee
 
 ## Tool Adoption Periods: Teach, Don't Do
 
-When Evan is deliberately building skill in a new tool — currently **jj (Jujutsu)** as part of the dev-environment-fluency project (see ~/indeed/library/projects/dev-environment-fluency.md) — agents must default to *teaching* the commands rather than *running* them. The whole point of the adoption is muscle memory through reps. If you do the operations for him, he never learns.
+When Evan is deliberately building skill in a new tool, agents must default to *teaching* the commands rather than *running* them. The whole point of the adoption is muscle memory through reps. If you do the operations for him, he never learns.
 
-**Default mode: teach, don't do.** When Evan says "let's rebase X onto Y," "split this commit," "undo that change," etc., respond with the relevant `jj` command and a brief explanation of what it does and why, then **wait for him to run it**. Do NOT execute the command yourself unless he explicitly asks you to.
+**Currently in adoption:** None as of 2026-05-15. (Most recent: fish shell, mid-adoption on the personal laptop. jj cycle-1 closed 2026-05-15 with verdict "soft commit"; agents may now use jj freely subject to the usual care for history-rewriting verbs — see [cycle-1 verdict zettel](file:///Users/edower/indeed/library/zk/2026/05/15/20260515-jj-cycle-1-verdict.md).)
 
-**Exception clause: iteration plumbing is delegated.** If Evan has explicitly delegated a multi-step iteration ("keep iterating until tests pass," "implement and commit each phase," "run the harness loop"), then `jj commit`, `jj new`, `jj describe`, and read-only verbs (`jj st`, `jj log`, `jj diff`) are fair game without asking. He has delegated the *loop*, not the learning. Use the smallest set of operations needed to keep the loop moving.
+**Default mode: teach, don't do.** When Evan asks for an operation in an in-adoption tool ("let's rebase X onto Y," "split this commit," "undo that change," etc.), respond with the relevant command and a brief explanation of what it does and why, then **wait for him to run it**. Do NOT execute the command yourself unless he explicitly asks you to.
 
-**Ask-first set: history-rewriting and remote operations.** Even mid-iteration, **always** ask before running: `jj rebase`, `jj squash`, `jj split`, `jj abandon`, `jj undo`, `jj git push`. These are user-facing surgery, not scaffolding. They are also exactly the operations whose semantics differ most from git — doing them silently costs the most learning value.
+**Exception clause: iteration plumbing is delegated.** If Evan has explicitly delegated a multi-step iteration ("keep iterating until tests pass," "implement and commit each phase," "run the harness loop"), then routine state-advance and read-only verbs are fair game without asking. He has delegated the *loop*, not the learning. Use the smallest set of operations needed to keep the loop moving.
 
-**When in doubt, teach.** Phrase it as "the command for that is `jj X` because Y; want me to run it or do you want to?" The default answer is always "user runs it." He can escalate to "you do it" explicitly.
+**Ask-first set: history-rewriting and remote operations.** Even mid-iteration, **always** ask before running operations that rewrite history or affect remotes (e.g., for jj: `rebase`, `squash`, `split`, `abandon`, `undo`, `git push`). These are user-facing surgery, not scaffolding. They are also exactly the operations whose semantics differ most from the predecessor tool — doing them silently costs the most learning value.
+
+**When in doubt, teach.** Phrase it as "the command for that is `X` because Y; want me to run it or do you want to?" The default answer is always "user runs it." He can escalate to "you do it" explicitly.
 
 **Format for teaching responses:**
 1. The exact command (in a code block).
 2. One-line explanation of what it does.
-3. The git equivalent (if any), to bridge mental models.
-4. Any gotcha specific to this case (e.g., "this will rewrite the parent of @, so dependents will need rebasing — jj will do that automatically").
+3. The predecessor-tool equivalent (if any), to bridge mental models.
+4. Any gotcha specific to this case.
 
-**Why this rule exists pre-cycle-1:** This is one of the rare AGENTS.md changes worth making *before* the experimental cycle produces verdict data. The teach-don't-do rule is independent of "should jj be adopted at all" — even if cycle 1's verdict is "drop jj," this rule causes no harm (agents would just have nothing to teach). Without it, cycle 1 happens but the learning goal gets quietly hollowed out by helpful agents executing his jj operations.
-
-**Generalization to future tool adoptions:** The same teach-don't-do framing applies whenever Evan is in deliberate skill-build mode for a new tool (future candidates: fish shell, Zellij, etc.). Treat each adoption period as a teaching engagement, not a service engagement, until Evan signals the adoption is complete.
+**Treat each adoption period as a teaching engagement, not a service engagement, until Evan signals the adoption is complete.** When complete, retire the tool from this section's "currently in adoption" list — agents may then use it freely.
 
 ## Epistemic Discipline: Hold Models Lightly
 
