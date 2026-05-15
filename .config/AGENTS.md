@@ -298,11 +298,19 @@ GIT_EDITOR=true git rebase --continue
 
 Store AI planning docs (PLAN.md, DESIGN.md, etc.) in `history/` directory to keep repo root clean.
 
+## Version Control: Detect jj
+
+Evan uses **jj (Jujutsu)** for most project repos. Before reaching for `git`, check whether the repo has a `.jj/` directory at the top level (`test -d .jj`). If present, use `jj` rather than `git` for everyday operations (status, log, diff, commit, push, etc.). Repos without `.jj/` are still pure git — use `git` as normal.
+
+For history-rewriting or remote operations (`jj rebase`, `jj squash`, `jj split`, `jj abandon`, `jj undo`, `jj git push`), follow the usual "executing actions with care" pattern — confirm before running, since they're hard to reverse.
+
+Background on the adoption decision: [cycle-1 verdict zettel](file:///Users/edower/indeed/library/zk/2026/05/15/20260515-jj-cycle-1-verdict.md) (verdict: soft commit, 2026-05-15).
+
 ## Tool Adoption Periods: Teach, Don't Do
 
 When Evan is deliberately building skill in a new tool, agents must default to *teaching* the commands rather than *running* them. The whole point of the adoption is muscle memory through reps. If you do the operations for him, he never learns.
 
-**Currently in adoption:** None as of 2026-05-15. (Most recent: fish shell, mid-adoption on the personal laptop. jj cycle-1 closed 2026-05-15 with verdict "soft commit"; agents may now use jj freely subject to the usual care for history-rewriting verbs — see [cycle-1 verdict zettel](file:///Users/edower/indeed/library/zk/2026/05/15/20260515-jj-cycle-1-verdict.md).)
+**Currently in adoption:** None as of 2026-05-15. Most recent: fish shell, mid-adoption on the personal laptop.
 
 **Default mode: teach, don't do.** When Evan asks for an operation in an in-adoption tool ("let's rebase X onto Y," "split this commit," "undo that change," etc.), respond with the relevant command and a brief explanation of what it does and why, then **wait for him to run it**. Do NOT execute the command yourself unless he explicitly asks you to.
 
