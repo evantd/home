@@ -183,8 +183,8 @@ Evan uses a daily & weekly notes system for planning and task management. The sy
 
 **Key files:**
 - `PLANNING.md` - Complete system docs, including "Why This System Exists" and current experiment
-- `daily-notes/YYYY-MM-DD.md` - Daily planning, tracking, reflection
-- `weekly-notes/YYYY-week-WW.md` - Weekly review and project selection
+- `planning-notes/YYYY/week-WW/YYYY-MM-DD.md` - Daily planning, tracking, reflection (ISO year + ISO week)
+- `planning-notes/YYYY/week-WW/YYYY-week-WW.md` - Weekly review and project selection (same dir as the week's dailies)
 - `projects/README.md` - Projects registry (all open loops)
 
 **Core concepts:**
@@ -215,7 +215,7 @@ See ~/indeed/library/PLANNING.md for complete system documentation.
 
 Always read ZETTELKASTEN.md before creating zettels — it defines directory structure, frontmatter format, and note type categories.
 
-**Daily notes connection:** Daily notes (~/indeed/library/daily-notes/) serve as fleeting notes. During weekly review or periodically, promote worthy insights to permanent zettels.
+**Daily notes connection:** Daily notes (~/indeed/library/planning-notes/YYYY/week-WW/) serve as fleeting notes. During weekly review or periodically, promote worthy insights to permanent zettels.
 
 ---
 
