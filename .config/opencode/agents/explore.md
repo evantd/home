@@ -1,12 +1,12 @@
 ---
 name: explore
 description: Fast, read-only codebase exploration. Finds files, searches code, answers questions about the codebase.
-model: "ollama/qwen3:30b"
+model: "llama-server/qwen3.6"
 mode: subagent
 temperature: 0.3
 permission:
-  edit: deny
-  bash: ask
+  edit: skip
+  bash: skip
 ---
 
 # Explore Agent

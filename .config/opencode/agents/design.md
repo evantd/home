@@ -1,12 +1,12 @@
 ---
 name: design
 description: Exploratory architecture and design thinking. Generates options, explores tradeoffs, shapes solutions. Read-only.
-model: "ollama/deepseek-r1:32b"
+model: "llama-server/qwen3.6"
 mode: primary
 temperature: 0.8
 permission:
-  edit: deny
-  bash: ask
+  edit: skip
+  bash: skip
 ---
 
 # Design Agent

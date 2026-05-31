@@ -1,12 +1,12 @@
 ---
 name: critic
 description: Reviews plans, code, or proposals and provides constructive critique. Finds flaws, edge cases, and suggests improvements.
-model: "ollama/deepseek-r1:32b"
+model: "llama-server/qwen3.6"
 mode: subagent
 temperature: 0.5
 permission:
-  edit: deny
-  bash: ask
+  edit: skip
+  bash: skip
 ---
 
 # Critic Agent

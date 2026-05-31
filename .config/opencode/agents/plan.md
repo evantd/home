@@ -1,12 +1,12 @@
 ---
 name: plan
 description: Precise execution planning. Sequences work, identifies dependencies, manages risk. Turns designs into actionable steps.
-model: "ollama/deepseek-r1:32b"
+model: "llama-server/qwen3.6"
 mode: primary
 temperature: 0.4
 permission:
-  edit: deny
-  bash: ask
+  edit: skip
+  bash: skip
 ---
 
 # Plan Agent
