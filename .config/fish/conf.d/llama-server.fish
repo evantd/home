@@ -13,12 +13,10 @@ set -gx LLAMA_HOST 127.0.0.1
 set -gx LLAMA_INFERENCE_URL "http://$LLAMA_HOST:$LLAMA_INFERENCE_PORT"
 set -gx LLAMA_EMBED_URL "http://$LLAMA_HOST:$LLAMA_EMBED_PORT"
 
-# Mining (phase 1) + corpus dedupe (phase 5) target a second machine on the
-# LAN with more headroom. Falls back to LLAMA_INFERENCE_URL if unset (see
-# scripts/llama_server_config.py: MINING_INFERENCE_URL).
-# Classification (phase 10) keeps using LLAMA_INFERENCE_URL above so it
-# coexists with interactive OpenCode use on this box.
+# NOTE: This file is for the personal laptop (evans-macbook-pro.local), which
+# IS the "machine with more headroom" that the work laptop offloads mining to.
+# So we deliberately do NOT set MINING_INFERENCE_URL here — the mining pipeline
+# falls back to LLAMA_INFERENCE_URL (local) when unset, which is correct.
 #
-# Override on the personal laptop if evans-macbook-pro.local isn't reachable
-# from your network.
-set -gx MINING_INFERENCE_URL "http://evans-macbook-pro.local:$LLAMA_INFERENCE_PORT"
+# See ~/.zshenv.d/llama-server.zsh for the work-laptop side that points at
+# this machine.

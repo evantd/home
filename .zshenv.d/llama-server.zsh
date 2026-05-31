@@ -13,9 +13,13 @@ export LLAMA_HOST=127.0.0.1
 export LLAMA_INFERENCE_URL="http://${LLAMA_HOST}:${LLAMA_INFERENCE_PORT}"
 export LLAMA_EMBED_URL="http://${LLAMA_HOST}:${LLAMA_EMBED_PORT}"
 
-# Mining (phase 1) + corpus dedupe (phase 5) target a second machine on the
-# LAN with more headroom. Falls back to LLAMA_INFERENCE_URL if unset (see
+# Mining (phase 1) + corpus dedupe (phase 5) offload to the personal laptop
+# (evans-macbook-pro.local) which has more headroom than this work machine.
+# Falls back to LLAMA_INFERENCE_URL if unset (see
 # scripts/llama_server_config.py: MINING_INFERENCE_URL).
 # Classification (phase 10) keeps using LLAMA_INFERENCE_URL above so it
 # coexists with interactive OpenCode use on this box.
+#
+# The personal laptop deliberately does NOT set this (it IS the target) — see
+# ~/.config/fish/conf.d/llama-server.fish.
 export MINING_INFERENCE_URL="http://evans-macbook-pro.local:${LLAMA_INFERENCE_PORT}"
