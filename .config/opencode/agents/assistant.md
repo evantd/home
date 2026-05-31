@@ -5,8 +5,8 @@ model: "llama-server/qwen3.6"
 mode: primary
 temperature: 0.6
 permission:
-  edit: skip
-  bash: skip
+  edit: allow
+  bash: allow
 ---
 
 # Assistant Agent

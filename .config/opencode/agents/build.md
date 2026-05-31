@@ -5,8 +5,8 @@ model: "llama-server/qwen3-coder-next"
 mode: primary
 temperature: 0.7
 permission:
-  edit: skip
-  bash: skip
+  edit: allow
+  bash: allow
 ---
 
 # Build Agent

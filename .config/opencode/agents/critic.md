@@ -5,8 +5,8 @@ model: "llama-server/qwen3.6"
 mode: subagent
 temperature: 0.5
 permission:
-  edit: skip
-  bash: skip
+  edit: allow
+  bash: allow
 ---
 
 # Critic Agent
