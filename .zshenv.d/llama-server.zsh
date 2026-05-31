@@ -1,5 +1,6 @@
-# llama-server port configuration
+# llama-server port configuration (zsh)
 #
+# Keep in sync with ~/.config/fish/conf.d/llama-server.fish (fish equivalent).
 # Both ports moved off the 8080/8081 range due to too much competition.
 # Centralized here so launch scripts, pipeline scripts, and OpenCode all
 # read the same values. Update here, restart the servers, and re-exec
