@@ -1,45 +1,37 @@
 {
-  "$schema": "https://opencode.ai/config.json",
-  "model": "ollama/qwen3:30b",
-  "default_agent": "assistant",
-  "enabled_providers": ["ollama"],
-  "provider": {
-    "ollama": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Ollama Local",
-      "options": {
-        "baseURL": "http://localhost:11434/v1"
-      },
-      "models": {
-        "qwen3-coder-tuned": {
-          "name": "qwen3-coder:30b ⚙️ Implementation",
-          "limit": {
-            "context": 65536,
-            "output": 32768
-          }
-        },
-        "qwen3:30b": {
-          "name": "qwen3:30b 💬 General",
-          "limit": {
-            "context": 32768,
-            "output": 16384
-          }
-        },
-        "qwen3:32b": {
-          "name": "qwen3:32b 💬 General (Dense)",
-          "limit": {
-            "context": 32768,
-            "output": 16384
-          }
-        },
-        "deepseek-r1:32b": {
-          "name": "deepseek-r1:32b 🧠 Reasoning",
-          "limit": {
-            "context": 65536,
-            "output": 16384
-          }
-        }
-      }
-    }
-  }
+	"$schema":       "https://opencode.ai/config.json",
+	"model":         "llama-server/qwen3.6",
+	"default_agent": "assistant",
+	"instructions": [
+		"instructions/common.md"
+	],
+	"enabled_providers": [
+		"llama-server"
+	],
+	"provider": {
+		"llama-server": {
+			"npm":  "@ai-sdk/openai-compatible",
+			"name": "llama-server Local",
+			"options": {
+				"baseURL": "http://localhost:{env:LLAMA_INFERENCE_PORT}/v1"
+			},
+			"models": {
+				"qwen3-coder-next": {
+					"name": "qwen3-coder-next UD-Q3 🚀 Agentic Coding",
+					"limit": {
+						"context": 262144,
+						"output":  32768
+					}
+				},
+				"qwen3.6": {
+					"name": "qwen3.6-35B UD-Q4 🧠 Multimodal/Thinking",
+					"limit": {
+						"context": 262144,
+						"output":  32768
+					}
+				}
+			}
+		}
+	},
+	"mcp": {"mcp-optimizer": {"url": "http://localhost:50206/mcp", "type": "remote"}}
 }
