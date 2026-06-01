@@ -1,7 +1,7 @@
 ---
 name: assistant
 description: General-purpose conversational agent. Handles most tasks directly, delegates to specialists when beneficial.
-model: "llama-server/qwen3.6"
+model: "optillm/qwen3.6-27b"
 mode: primary
 temperature: 0.6
 permission:

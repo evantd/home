@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Specialized agent for daily and weekly planning routines. Executes planning workflows end-to-end.
-model: "llama-server/qwen3.6"
+model: "optillm/qwen3.6-27b"
 mode: primary
 temperature: 0.5
 permission:

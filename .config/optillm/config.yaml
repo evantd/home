@@ -1,0 +1,39 @@
+# OptiLLM configuration
+#
+# Topology: OpenCode → OptiLLM (this server, :18083)
+#                    → llama-server router (:18082, ~/Models/models.ini)
+#                    → child model procs (qwen3.6-*, gemma-4-*)
+#
+# OptiLLM uses the ModernBERT classifier (router_plugin) to pick a technique
+# per request (none/cot_reflection/bon/self_consistency/...) and forwards to
+# the upstream router with that technique applied.
+
+backend:
+  type: openai
+  openai_api_base: http://127.0.0.1:18082/v1
+  openai_api_key: dummy
+
+# Default approach — router auto-selects technique based on task shape.
+# Override per-request via extra_body.optillm_approach if needed.
+approach: router
+
+# Router classifier config
+router:
+  model: codelion/optillm-modernbert-large
+  # Heuristic mapping (auto-detected by classifier):
+  #   coding     → self_consistency
+  #   reasoning  → cot_reflection
+  #   simple     → none (pass-through, no overhead)
+
+# Fallback parameters when router picks these approaches
+bon:
+  n: 3
+  verifier: self
+
+self_consistency:
+  n: 3
+
+cot_reflection:
+  rounds: 2
+
+log_level: info

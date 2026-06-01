@@ -1,7 +1,7 @@
 ---
 name: explore
 description: Fast, read-only codebase exploration. Finds files, searches code, answers questions about the codebase.
-model: "llama-server/qwen3.6"
+model: "optillm/qwen3.6-27b"
 mode: subagent
 temperature: 0.3
 permission:

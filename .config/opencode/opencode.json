@@ -1,30 +1,83 @@
 {
 	"$schema":       "https://opencode.ai/config.json",
-	"model":         "llama-server/qwen3.6",
+	"permission":    "allow",
+	"model":         "optillm/qwen3.6-27b",
 	"default_agent": "assistant",
 	"instructions": [
 		"instructions/common.md"
 	],
 	"enabled_providers": [
-		"llama-server"
+		"optillm",
+		"llama-direct"
 	],
 	"provider": {
-		"llama-server": {
+		"optillm": {
 			"npm":  "@ai-sdk/openai-compatible",
-			"name": "llama-server Local",
+			"name": "OptiLLM (approach=router)",
 			"options": {
-				"baseURL": "http://localhost:{env:LLAMA_INFERENCE_PORT}/v1"
+				"baseURL": "http://localhost:{env:OPTILLM_PORT}/v1"
 			},
 			"models": {
-				"qwen3-coder-next": {
-					"name": "qwen3-coder-next UD-Q3 🚀 Agentic Coding",
+				"qwen3.6-27b": {
+					"name": "qwen3.6-27B UD-Q4 🧠 Dense — best accuracy",
 					"limit": {
 						"context": 262144,
 						"output":  32768
 					}
 				},
-				"qwen3.6": {
-					"name": "qwen3.6-35B UD-Q4 🧠 Multimodal/Thinking",
+				"qwen3.6-moe": {
+					"name": "qwen3.6-35B-A3B UD-Q4 🚀 MoE (3B active) — fast gen",
+					"limit": {
+						"context": 262144,
+						"output":  32768
+					}
+				},
+				"gemma-4-31b": {
+					"name": "gemma-4-31B-it UD-Q4 🔬 Strong reasoning",
+					"limit": {
+						"context": 262144,
+						"output":  32768
+					}
+				},
+				"gemma-4-26b-moe": {
+					"name": "gemma-4-26B-A4B-it UD-Q4 ⚡ MoE (4B active) — fast",
+					"limit": {
+						"context": 262144,
+						"output":  32768
+					}
+				}
+			}
+		},
+		"llama-direct": {
+			"npm":  "@ai-sdk/openai-compatible",
+			"name": "llama-server router (direct, bypass OptiLLM)",
+			"options": {
+				"baseURL": "http://localhost:{env:LLAMA_INFERENCE_PORT}/v1"
+			},
+			"models": {
+				"qwen3.6-27b": {
+					"name": "qwen3.6-27B direct (no approach routing)",
+					"limit": {
+						"context": 262144,
+						"output":  32768
+					}
+				},
+				"qwen3.6-moe": {
+					"name": "qwen3.6-35B-A3B direct (no approach routing)",
+					"limit": {
+						"context": 262144,
+						"output":  32768
+					}
+				},
+				"gemma-4-31b": {
+					"name": "gemma-4-31B-it direct (no approach routing)",
+					"limit": {
+						"context": 262144,
+						"output":  32768
+					}
+				},
+				"gemma-4-26b-moe": {
+					"name": "gemma-4-26B-A4B-it direct (no approach routing)",
 					"limit": {
 						"context": 262144,
 						"output":  32768

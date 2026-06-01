@@ -1,7 +1,7 @@
 ---
 name: build
 description: Implementation agent with code-specialized model. Writes, tests, and iterates until verification passes.
-model: "llama-server/qwen3-coder-next"
+model: "optillm/qwen3.6-moe"
 mode: primary
 temperature: 0.7
 permission:
