@@ -1,7 +1,7 @@
 ---
 name: synthesizer
 description: Combines multiple proposals or plans into a unified solution, taking the best elements from each.
-model: "optillm/qwen3.6-27b"
+model: "llama-server/qwen3.6-27b"
 mode: subagent
 temperature: 0.6
 permission:

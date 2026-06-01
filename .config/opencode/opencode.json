@@ -1,21 +1,20 @@
 {
 	"$schema":       "https://opencode.ai/config.json",
 	"permission":    "allow",
-	"model":         "optillm/qwen3.6-27b",
+	"model":         "llama-server/qwen3.6-27b",
 	"default_agent": "assistant",
 	"instructions": [
 		"instructions/common.md"
 	],
 	"enabled_providers": [
-		"optillm",
-		"llama-direct"
+		"llama-server"
 	],
 	"provider": {
-		"optillm": {
+		"llama-server": {
 			"npm":  "@ai-sdk/openai-compatible",
-			"name": "OptiLLM (approach=router)",
+			"name": "llama-server router (direct)",
 			"options": {
-				"baseURL": "http://localhost:{env:OPTILLM_PORT}/v1"
+				"baseURL": "http://localhost:{env:LLAMA_INFERENCE_PORT}/v1"
 			},
 			"models": {
 				"qwen3.6-27b": {
@@ -41,43 +40,6 @@
 				},
 				"gemma-4-26b-moe": {
 					"name": "gemma-4-26B-A4B-it UD-Q4 ⚡ MoE (4B active) — fast",
-					"limit": {
-						"context": 262144,
-						"output":  32768
-					}
-				}
-			}
-		},
-		"llama-direct": {
-			"npm":  "@ai-sdk/openai-compatible",
-			"name": "llama-server router (direct, bypass OptiLLM)",
-			"options": {
-				"baseURL": "http://localhost:{env:LLAMA_INFERENCE_PORT}/v1"
-			},
-			"models": {
-				"qwen3.6-27b": {
-					"name": "qwen3.6-27B direct (no approach routing)",
-					"limit": {
-						"context": 262144,
-						"output":  32768
-					}
-				},
-				"qwen3.6-moe": {
-					"name": "qwen3.6-35B-A3B direct (no approach routing)",
-					"limit": {
-						"context": 262144,
-						"output":  32768
-					}
-				},
-				"gemma-4-31b": {
-					"name": "gemma-4-31B-it direct (no approach routing)",
-					"limit": {
-						"context": 262144,
-						"output":  32768
-					}
-				},
-				"gemma-4-26b-moe": {
-					"name": "gemma-4-26B-A4B-it direct (no approach routing)",
 					"limit": {
 						"context": 262144,
 						"output":  32768

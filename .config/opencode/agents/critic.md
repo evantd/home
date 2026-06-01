@@ -1,7 +1,7 @@
 ---
 name: critic
 description: Reviews plans, code, or proposals and provides constructive critique. Finds flaws, edge cases, and suggests improvements.
-model: "optillm/qwen3.6-27b"
+model: "llama-server/qwen3.6-27b"
 mode: subagent
 temperature: 0.5
 permission:

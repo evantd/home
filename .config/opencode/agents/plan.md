@@ -1,7 +1,7 @@
 ---
 name: plan
 description: Precise execution planning. Sequences work, identifies dependencies, manages risk. Turns designs into actionable steps.
-model: "optillm/qwen3.6-27b"
+model: "llama-server/qwen3.6-27b"
 mode: primary
 temperature: 0.4
 permission:
