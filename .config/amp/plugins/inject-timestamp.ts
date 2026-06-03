@@ -1,6 +1,7 @@
 import type { PluginAPI } from '@ampcode/plugin'
 import { appendFile, mkdir } from 'node:fs/promises'
 import { closeSync, openSync, writeSync } from 'node:fs'
+import { execSync } from 'node:child_process'
 import { dirname } from 'node:path'
 import { homedir } from 'node:os'
 
@@ -45,18 +46,61 @@ async function appendEntry(path: string, entry: Record<string, unknown>): Promis
  * Uses the iTerm2 OSC 1337 SetUserVar escape (supported by WezTerm) so this
  * doesn't conflict with Amp's own OSC 0 title sets.
  */
-function setAmpStatus(state: 'working' | 'waiting'): void {
-  try {
-    const fd = openSync('/dev/tty', 'w')
+const STATUS_DEBUG_LOG = `${homedir()}/indeed/library/logs/amp-status-debug.log`
+
+let cachedTtyPath: string | null | undefined  // undefined = not yet probed
+
+function findTtyPath(): string | null {
+  if (cachedTtyPath !== undefined) return cachedTtyPath
+  // Walk up the process tree until we find an ancestor with a real TTY.
+  // Plugin processes typically don't have a controlling tty themselves
+  // (ENXIO on /dev/tty), but Amp's main process and its terminal ancestor do.
+  let pid: number = process.pid
+  for (let i = 0; i < 15; i++) {
     try {
-      const encoded = Buffer.from(state).toString('base64')
-      writeSync(fd, `\x1b]1337;SetUserVar=ampStatus=${encoded}\x07`)
-    } finally {
-      closeSync(fd)
+      const tty = execSync(`ps -p ${pid} -o tty=`, { encoding: 'utf8' }).trim()
+      if (tty && tty !== '?' && tty !== '??' && !tty.startsWith('?')) {
+        cachedTtyPath = `/dev/${tty}`
+        return cachedTtyPath
+      }
+      const ppid = execSync(`ps -p ${pid} -o ppid=`, { encoding: 'utf8' }).trim()
+      const next = parseInt(ppid, 10)
+      if (!next || next <= 1 || next === pid) break
+      pid = next
+    } catch {
+      break
     }
-  } catch {
-    // No tty (web client / CI / detached) — silently ignore.
   }
+  cachedTtyPath = null
+  return null
+}
+
+function setAmpStatus(state: 'working' | 'waiting'): void {
+  const ts = new Date().toISOString()
+  const encoded = Buffer.from(state).toString('base64')
+  const seq = `\x1b]1337;SetUserVar=ampStatus=${encoded}\x07`
+  let result = 'ok'
+  let bytes = 0
+  let path = '(none)'
+  try {
+    const ttyPath = findTtyPath()
+    if (!ttyPath) {
+      result = 'no tty found in process tree'
+    } else {
+      path = ttyPath
+      const fd = openSync(ttyPath, 'w')
+      try {
+        bytes = writeSync(fd, seq)
+      } finally {
+        closeSync(fd)
+      }
+    }
+  } catch (err) {
+    result = `error: ${err instanceof Error ? err.message : String(err)}`
+  }
+  try {
+    void appendEntry(STATUS_DEBUG_LOG, { ts, state, result, bytes, path, pid: process.pid })
+  } catch {}
 }
 
 export default function (amp: PluginAPI) {
