@@ -4,6 +4,14 @@ local config = wezterm.config_builder()
 -- Track which panes have had bells ring
 local bell_panes = {}
 
+-- Track Amp waiting status per pane: { last_status = string, acknowledged = bool }
+-- "acknowledged" is set true when the user focuses the tab while it's in the
+-- current ampStatus state. It resets to false whenever ampStatus transitions
+-- (e.g. when the plugin writes 'working' on agent.start and then 'waiting' on
+-- agent.end). This means each new "waiting" event surfaces ⏳ exactly once,
+-- and focusing the tab clears it until the next agent.end.
+local amp_panes = {}
+
 wezterm.on('bell', function(window, pane)
   bell_panes[pane:pane_id()] = true
 end)
@@ -11,6 +19,21 @@ end)
 wezterm.on('format-tab-title', function(tab, tabs, panes, cfg, hover, max_width)
   local title = tab.active_pane.title
   local pane_id = tab.active_pane.pane_id
+
+  -- Track Amp status transitions on every render.
+  local user_vars = tab.active_pane.user_vars
+  local current_amp = user_vars and user_vars.ampStatus or nil
+  local state = amp_panes[pane_id]
+  if not state then
+    state = { last_status = current_amp, acknowledged = false }
+    amp_panes[pane_id] = state
+  elseif state.last_status ~= current_amp then
+    state.last_status = current_amp
+    state.acknowledged = false
+  end
+  if tab.is_active then
+    state.acknowledged = true
+  end
 
   -- Clear bell state when tab is focused
   if tab.is_active then
@@ -27,11 +50,9 @@ wezterm.on('format-tab-title', function(tab, tabs, panes, cfg, hover, max_width)
   end
 
   -- Amp plugin signals "waiting for user" via OSC 1337 SetUserVar=ampStatus=waiting.
-  -- Show ⏳ on non-focused tabs when Amp has finished a turn and is awaiting input.
-  -- This replaces the previous `has_unseen_output` check, which fired constantly
-  -- for helix/Amp redraws even when nothing was actually waiting.
-  local user_vars = tab.active_pane.user_vars
-  if user_vars and user_vars.ampStatus == 'waiting' then
+  -- Show ⏳ only for unacknowledged waiting transitions, so focusing the tab
+  -- clears the indicator until the next agent.end fires.
+  if current_amp == 'waiting' and not state.acknowledged then
     return {
       { Foreground = { Color = "#aaaaaa" }},
       { Text = "⏳ " .. title },
