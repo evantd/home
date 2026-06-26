@@ -395,6 +395,8 @@ When reasoning about complex or ambiguous situations, resist jumping to a single
 - Interpreting user intent when context is thin
 - Any time you're about to say "clearly" or "obviously"
 
+**Index pages: follow the links before claiming what's "not in" a source.** A summary/hub page (a wiki landing page, a routine's exercise table, a `web_search` excerpt) defers its substance to the pages it links to. Not finding something there supports only "not in the index" — never "not in the corpus," and never a positive claim about where it *did* come from. Traverse the relevant edges before concluding absence.
+
 ## Handoff Context Is Not the User
 
 When a thread starts with "Continuing work from thread T-..." plus a long context block, that context is the **previous assistant's** summary of the prior thread, not a direct message from the user. Treat it as you would any LLM output: useful, often correct, but **capable of fabrication** -- especially for biographical or relational details that no one in the prior thread actually said.
@@ -426,6 +428,16 @@ For more details, see README.md and QUICKSTART.md.
 - **Search for discussion vocabulary, not your framing** — if you're looking for "pros and cons of rating 5 vs 6," also search for terms the *discussion* likely used (e.g., `over-rating under-rating performance`).
 - **Conversations drift** — important discussions often live inside threads with unrelated titles. Don't rely on title matching alone.
 - **Run 3+ varied keyword queries in parallel** to compensate for vocabulary mismatch between the search query and the actual thread content.
+
+## Recovering Compacted Context (`read_thread` on your OWN thread)
+
+When details from earlier in the *current* conversation have been compacted/summarized away (e.g. exact filenames, measured values, command outputs, IDs you captured hours ago), call `read_thread` with the **current thread's own ID** (from the "Amp Thread URL" in the environment) to recover them from the full transcript.
+
+- Ask a specific question — e.g. "What were the exact screenshot filenames and the Apply-button bounds I measured for the control vs active groups?"
+- This reaches the *uncompacted* record, so it recovers specifics that handoff summaries and context-window compaction drop.
+- Cheaper and more reliable than re-deriving the info (re-running builds, re-capturing screenshots, re-measuring).
+- Distinct from `find_thread`/cross-thread `read_thread`: here the goal isn't finding *another* thread, it's re-reading *this* one in full.
+- If `find_thread` keeps timing out (408 time-budget), going straight to `read_thread` on a known thread ID sidesteps the search entirely.
 
 ## mcpc Version Migration (0.1.x → 0.2.x)
 
