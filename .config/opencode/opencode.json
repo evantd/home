@@ -19,7 +19,7 @@
 			},
 			"models": {
 				"qwen3.6-27b": {
-					"name": "qwen3.6-27B UD-Q4 🧠 Dense (always-loaded) — default",
+					"name": "qwen3.6-27B 🧠 Dense (always-loaded) — default",
 					"limit": {
 						"context": 262144,
 						"output":  32768
@@ -35,21 +35,28 @@
 			},
 			"models": {
 				"qwen3.6-27b": {
-					"name": "qwen3.6-27B UD-Q4 🧠 Dense (on-demand via router)",
+					"name": "qwen3.6-27B 🧠 Dense (on-demand via router)",
 					"limit": {
 						"context": 262144,
 						"output":  32768
 					}
 				},
 				"gemma-4-31b": {
-					"name": "gemma-4-31B-it UD-Q4 🔬 Strong reasoning",
+					"name": "gemma-4-31B-it 🔬 Strong reasoning",
 					"limit": {
 						"context": 262144,
 						"output":  32768
 					}
 				},
 				"gemma-4-26b-moe": {
-					"name": "gemma-4-26B-A4B-it UD-Q4 ⚡ MoE (4B active) — fast",
+					"name": "gemma-4-26B-A4B-it ⚡ MoE (4B active) — fast",
+					"limit": {
+						"context": 262144,
+						"output":  32768
+					}
+				},
+				"qwen3.6-moe": {
+					"name": "qwen3.6-35B-A3B 🚀 MoE (3B active) — fast fallback",
 					"limit": {
 						"context": 262144,
 						"output":  32768
