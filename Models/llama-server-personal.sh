@@ -103,7 +103,7 @@ start_dedicated() {
         --metrics \
         --perf \
         --kv-unified \
-        --chat-template-kwargs '{"preserve_thinking":true}' \
+        --chat-template-kwargs '{"preserve_thinking":false}' \
         2>&1 | LOG_NAME="dedicated-server.log" python3 "$HOME/Models/log_wrapper.py" &
     echo $! > "$DEDICATED_PIDFILE"
     sleep 3
@@ -129,7 +129,7 @@ start_router() {
         --host "$HOST" \
         --models-max "$MODELS_MAX" \
         --sleep-idle-seconds "$SLEEP_IDLE" \
-        --chat-template-kwargs '{"preserve_thinking":true}' \
+        --chat-template-kwargs '{"preserve_thinking":false}' \
         --kv-unified \
         --log-timestamps \
         --log-verbosity "$LOG_VERBOSITY" \
