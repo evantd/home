@@ -1,8 +1,8 @@
 ---
 name: build
 description: Implementation agent with code-specialized model. Writes, tests, and iterates until verification passes.
-model: "llama-server/qwen3.6-moe"
-mode: primary
+model: "llama-server-dedicated/qwen3.6-27b"
+mode: subagent
 temperature: 0.7
 permission:
   edit: allow

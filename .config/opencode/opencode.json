@@ -1,15 +1,32 @@
 {
 	"$schema":       "https://opencode.ai/config.json",
 	"permission":    "allow",
-	"model":         "llama-server/qwen3.6-27b",
+	"model":         "llama-server-dedicated/qwen3.6-27b",
 	"default_agent": "assistant",
 	"instructions": [
 		"instructions/common.md"
 	],
 	"enabled_providers": [
+		"llama-server-dedicated",
 		"llama-server"
 	],
 	"provider": {
+		"llama-server-dedicated": {
+			"npm":  "@ai-sdk/openai-compatible",
+			"name": "llama-server dedicated (always-loaded)",
+			"options": {
+				"baseURL": "http://localhost:{env:LLAMA_DEDICATED_PORT}/v1"
+			},
+			"models": {
+				"qwen3.6-27b": {
+					"name": "qwen3.6-27B UD-Q4 🧠 Dense (always-loaded) — default",
+					"limit": {
+						"context": 262144,
+						"output":  32768
+					}
+				}
+			}
+		},
 		"llama-server": {
 			"npm":  "@ai-sdk/openai-compatible",
 			"name": "llama-server router (direct)",
@@ -18,14 +35,7 @@
 			},
 			"models": {
 				"qwen3.6-27b": {
-					"name": "qwen3.6-27B UD-Q4 🧠 Dense — best accuracy",
-					"limit": {
-						"context": 262144,
-						"output":  32768
-					}
-				},
-				"qwen3.6-moe": {
-					"name": "qwen3.6-35B-A3B UD-Q4 🚀 MoE (3B active) — fast gen",
+					"name": "qwen3.6-27B UD-Q4 🧠 Dense (on-demand via router)",
 					"limit": {
 						"context": 262144,
 						"output":  32768

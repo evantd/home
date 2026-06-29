@@ -14,10 +14,12 @@
 # fixed upstream or patched locally.
 
 set -gx LLAMA_EMBED_PORT     18081
+set -gx LLAMA_DEDICATED_PORT 18080
 set -gx LLAMA_INFERENCE_PORT 18082
 set -gx LLAMA_HOST           127.0.0.1
 
 set -gx LLAMA_EMBED_URL     "http://$LLAMA_HOST:$LLAMA_EMBED_PORT"
+set -gx LLAMA_DEDICATED_URL "http://$LLAMA_HOST:$LLAMA_DEDICATED_PORT"
 set -gx LLAMA_INFERENCE_URL "http://$LLAMA_HOST:$LLAMA_INFERENCE_PORT"
 
 # NOTE: This file is for the personal laptop (evans-macbook-pro.local), which

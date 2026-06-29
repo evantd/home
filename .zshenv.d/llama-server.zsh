@@ -14,13 +14,14 @@
 # fixed upstream or patched locally.
 
 export LLAMA_EMBED_PORT=18081
+export LLAMA_DEDICATED_PORT=18080
 export LLAMA_INFERENCE_PORT=18082
 export LLAMA_HOST=127.0.0.1
 
 export LLAMA_EMBED_URL="http://${LLAMA_HOST}:${LLAMA_EMBED_PORT}"
+export LLAMA_DEDICATED_URL="http://${LLAMA_HOST}:${LLAMA_DEDICATED_PORT}"
 export LLAMA_INFERENCE_URL="http://${LLAMA_HOST}:${LLAMA_INFERENCE_PORT}"
 
-# MINING_INFERENCE_URL deliberately NOT set: mining pipeline (Phase 1+5+10)
-# now runs fully locally on whichever machine you're on, sharing the local
-# router with OpenCode. The scripts/llama_server_config.py fallback to
-# LLAMA_INFERENCE_URL is exactly what we want.
+# MINING_INFERENCE_URL points at the dedicated server so mining (phase 1+5)
+# uses the always-warm dense model instead of loading on-demand via router.
+export MINING_INFERENCE_URL="http://${LLAMA_HOST}:${LLAMA_DEDICATED_PORT}"
