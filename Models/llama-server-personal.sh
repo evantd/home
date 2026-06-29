@@ -1,6 +1,6 @@
 #!/bin/bash
 # llama-server management script (personal laptop variant)
-# Usage: llama-server-personal.sh {start|stop|restart|status|log|embed-log}
+# Usage: llama-server-personal.sh {start|stop|restart|restart-dedicated|restart-router|status|log|embed-log|dedicated-log}
 #
 # Manages two servers (see BlueBarb doc § "Local model server topology"):
 #   - Embeddings           (LLAMA_EMBED_PORT,     default 18081): embeddinggemma-300m
@@ -229,13 +229,27 @@ status() {
     fi
 }
 
+restart_dedicated() {
+    stop_one "Dedicated server" "$DEDICATED_PIDFILE" "" "$DEDICATED_PORT"
+    sleep 3
+    start_dedicated
+}
+
+restart_router() {
+    stop_one "llama-server router" "$PIDFILE" "" "$PORT"
+    sleep 3
+    start_router
+}
+
 case "${1:-status}" in
     start)       start ;;
     stop)        stop ;;
     restart)     stop; sleep 5; start ;;
+    restart-dedicated) restart_dedicated ;;
+    restart-router)    restart_router ;;
     status)      status ;;
-    log)         tail -f "$LOG" ;;
+    log)         tail -f "$DEDICATED_LOG" ;;
     embed-log)   tail -f "$EMBED_LOG" ;;
     dedicated-log) tail -f "$DEDICATED_LOG" ;;
-    *)           echo "Usage: $0 {start|stop|restart|status|log|embed-log|dedicated-log}" ;;
+    *)           echo "Usage: $0 {start|stop|restart|restart-dedicated|restart-router|status|log|embed-log|dedicated-log}" ;;
 esac
