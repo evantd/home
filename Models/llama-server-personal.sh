@@ -24,7 +24,7 @@ EMBED_PIDFILE="$HOME/Models/embedding-server.pid"
 
 # Dedicated server (always loaded, never sleeps)
 # Dense model — best accuracy (82.5% on harness-bench), primary for all work
-DEDICATED_MODEL="$HOME/Models/Qwen3.6-27B-GGUF/Qwen3.6-27B-UD-Q4_K_XL.gguf"
+DEDICATED_MODEL="$HOME/Models/Qwen3.6-27B-MTP-GGUF/Qwen3.6-27B-Q8_0.gguf"
 DEDICATED_PORT="${LLAMA_DEDICATED_PORT:-18080}"
 DEDICATED_LOG="$HOME/Models/dedicated-server.log"
 DEDICATED_PIDFILE="$HOME/Models/dedicated-server.pid"
@@ -103,6 +103,8 @@ start_dedicated() {
         --metrics \
         --perf \
         --kv-unified \
+        --spec-type draft-mtp \
+        --spec-draft-n-max 4 \
         --chat-template-kwargs '{"preserve_thinking":false}' \
         2>&1 | LOG_NAME="dedicated-server.log" python3 "$HOME/Models/log_wrapper.py" &
     echo $! > "$DEDICATED_PIDFILE"
