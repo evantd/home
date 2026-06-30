@@ -1,0 +1,63 @@
+#!/bin/bash
+# Log a transition note to today's daily note
+# Usage: log-transition "Note text"
+# Shows current time and appends to ~/indeed/library/planning-notes/YYYY/week-WW/YYYY-MM-DD.md
+# Creates today's daily note from a minimal template if it doesn't exist yet.
+# If running inside an agent thread, appends a clickable thread-link marker.
+
+DATE=$(date +%Y-%m-%d)
+ISO_YEAR=$(date +%G)
+ISO_WEEK=$(date +%V)
+DAY=$(date +%A)
+HUMAN=$(date "+%A, %B %d, %Y")
+NOTE_DIR=~/indeed/library/planning-notes/${ISO_YEAR}/week-${ISO_WEEK}
+DAILY_NOTE=${NOTE_DIR}/${DATE}.md
+
+# Ensure parent directory exists
+mkdir -p "$NOTE_DIR"
+
+# Show current time (so caller sees it)
+date "+%A, %B %d, %Y %H:%M"
+
+# Create the daily note from the minimal template if it doesn't exist, so
+# transition notes always have a home even before formal daily planning.
+# IMPORTANT: keep "## Transition Notes" as the LAST section — this script
+# appends to the END of the file, so any section after it would swallow the
+# entries under the wrong heading.
+if [ ! -f "$DAILY_NOTE" ]; then
+    cat > "$DAILY_NOTE" <<EOF
+---
+date: ${DATE}
+day: ${DAY}
+week: ${ISO_WEEK}
+---
+
+# ${HUMAN}
+
+[Week ${ISO_WEEK}](${ISO_YEAR}-week-${ISO_WEEK}.md)
+
+- [ ] **Most Important:** ??? 
+- [ ] **Most Meaningful:** ???
+
+## End of Day
+
+*Mirror (observed vs stated):* (← assistant fills this in during EoD step *before* asking the questions: drift, bleed-into-deferred-work, when MIT actually started, etc.)
+
+- **What I chose to leave undone today:** 
+- **How was I kind to myself today?** 
+
+## Transition Notes
+EOF
+fi
+
+# Detect active agent thread (Amp sets both; AGENT_THREAD_ID is agent-agnostic)
+THREAD_ID="${AGENT_THREAD_ID:-${AMP_CURRENT_THREAD_ID:-}}"
+THREAD_TAG=""
+if [ -n "$THREAD_ID" ]; then
+    THREAD_TAG=" [↗](https://ampcode.com/threads/${THREAD_ID})"
+fi
+
+# Append transition note
+echo "- $(date +%H:%M) - $*${THREAD_TAG}" >> "$DAILY_NOTE"
+
+echo "→ Logged to $DAILY_NOTE"
