@@ -1,7 +1,7 @@
 ---
 name: design
 description: Exploratory architecture and design thinking. Generates options, explores tradeoffs, shapes solutions. Read-only.
-model: "llama-server/qwen3.6-27b"
+model: "llama-server-dedicated/qwen3.6-27b"
 mode: primary
 temperature: 0.8
 permission:

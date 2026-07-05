@@ -19,7 +19,7 @@
 			},
 			"models": {
 				"qwen3.6-27b": {
-					"name": "qwen3.6-27B 🧠 Dense (always-loaded) — default",
+					"name": "qwen3.6-27B 🧠 Dense (always-loaded, text-only) — default",
 					"limit": {
 						"context": 262144,
 						"output":  32768
@@ -36,6 +36,9 @@
 			"models": {
 				"qwen3.6-27b": {
 					"name": "qwen3.6-27B 🧠 Dense (on-demand via router)",
+					"modalities": {
+						"input": ["text", "image"]
+					},
 					"limit": {
 						"context": 262144,
 						"output":  32768
@@ -57,6 +60,9 @@
 				},
 				"qwen3.6-moe": {
 					"name": "qwen3.6-35B-A3B 🚀 MoE (3B active) — fast fallback",
+					"modalities": {
+						"input": ["text", "image"]
+					},
 					"limit": {
 						"context": 262144,
 						"output":  32768
