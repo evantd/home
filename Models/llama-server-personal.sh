@@ -89,7 +89,7 @@ start_dedicated() {
         --port "$DEDICATED_PORT" \
         --host "$HOST" \
         --alias qwen3.6-27b \
-        --ctx-size 1048576 \
+        --ctx-size 524288 \
         --n-gpu-layers 99 \
         --parallel 4 \
         --temp 0.6 \
@@ -126,19 +126,19 @@ start_router() {
     fi
     wait_for_port_free "$PORT" 15
     echo "Starting llama-server router on $HOST:$PORT (models-max=$MODELS_MAX, sleep-idle=${SLEEP_IDLE}s)..."
-    bash -c "llama-server \
-        --models-preset \"$PRESET\" \
-        --port \"$PORT\" \
-        --host \"$HOST\" \
-        --models-max $MODELS_MAX \
-        --sleep-idle-seconds $SLEEP_IDLE \
-        --chat-template-kwargs '{\"preserve_thinking\":false}' \
+    nohup llama-server \
+        --models-preset "$PRESET" \
+        --port "$PORT" \
+        --host "$HOST" \
+        --models-max "$MODELS_MAX" \
+        --sleep-idle-seconds "$SLEEP_IDLE" \
+        --chat-template-kwargs '{"preserve_thinking":false}' \
         --kv-unified \
         --log-timestamps \
-        --log-verbosity $LOG_VERBOSITY \
+        --log-verbosity "$LOG_VERBOSITY" \
         --metrics \
         --perf \
-        2>&1 | python3 \"$HOME/Models/log_wrapper.py\"" &
+        2>&1 | python3 "$HOME/Models/log_wrapper.py" &
     echo $! > "$PIDFILE"
     sleep 3
     if kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
