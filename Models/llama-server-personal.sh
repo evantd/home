@@ -50,18 +50,18 @@ start_embed() {
     fi
     wait_for_port_free "$EMBED_PORT" 10
     echo "Starting embedding-server on $HOST:$EMBED_PORT..."
-    nohup stdbuf -oL -eL llama-server \
-        --model "$EMBED_MODEL" \
-        --port "$EMBED_PORT" \
-        --host "$HOST" \
+    nohup bash -c "stdbuf -oL -eL llama-server \
+        --model \"\$EMBED_MODEL\" \
+        --port \"\$EMBED_PORT\" \
+        --host \"\$HOST\" \
         --embeddings \
         --ctx-size 2048 \
         --ubatch-size 2048 \
         --n-gpu-layers 99 \
         --log-timestamps \
-        --log-verbosity "$LOG_VERBOSITY" \
+        --log-verbosity \"\$LOG_VERBOSITY\" \
         --metrics \
-        2>&1 | LOG_NAME="embedding-server.log" python3 "$HOME/Models/log_wrapper.py" &
+        2>\&1 | LOG_NAME=\"embedding-server.log\" python3 \"\$HOME/Models/log_wrapper.py\"" &
     echo $! > "$EMBED_PIDFILE"
     sleep 2
     if kill -0 "$(cat "$EMBED_PIDFILE")" 2>/dev/null; then
@@ -84,10 +84,10 @@ start_dedicated() {
     fi
     wait_for_port_free "$DEDICATED_PORT" 15
     echo "Starting dedicated server on $HOST:$DEDICATED_PORT (always loaded, never sleeps)..."
-    nohup stdbuf -oL -eL llama-server \
-        --model "$DEDICATED_MODEL" \
-        --port "$DEDICATED_PORT" \
-        --host "$HOST" \
+    nohup bash -c "stdbuf -oL -eL llama-server \
+        --model \"\$DEDICATED_MODEL\" \
+        --port \"\$DEDICATED_PORT\" \
+        --host \"\$HOST\" \
         --alias qwen3.6-27b \
         --ctx-size 1048576 \
         --n-gpu-layers 99 \
@@ -99,15 +99,15 @@ start_dedicated() {
         --cache-type-v q8_0 \
         --jinja \
         --log-timestamps \
-        --log-verbosity "$LOG_VERBOSITY" \
+        --log-verbosity \"\$LOG_VERBOSITY\" \
         --metrics \
         --perf \
         --no-kv-unified \
-        --slot-save-path "$HOME/Models/slot-cache" \
+        --slot-save-path \"\$HOME/Models/slot-cache\" \
         --spec-type draft-mtp \
         --spec-draft-n-max 4 \
-        --chat-template-kwargs '{"preserve_thinking":false}' \
-        2>&1 | LOG_NAME="dedicated-server.log" python3 "$HOME/Models/log_wrapper.py" &
+        --chat-template-kwargs '{\"preserve_thinking\":false}' \
+        2>\&1 | LOG_NAME=\"dedicated-server.log\" python3 \"\$HOME/Models/log_wrapper.py\"" &
     echo $! > "$DEDICATED_PIDFILE"
     sleep 3
     if kill -0 "$(cat "$DEDICATED_PIDFILE")" 2>/dev/null; then
@@ -126,19 +126,19 @@ start_router() {
     fi
     wait_for_port_free "$PORT" 15
     echo "Starting llama-server router on $HOST:$PORT (models-max=$MODELS_MAX, sleep-idle=${SLEEP_IDLE}s)..."
-    nohup stdbuf -oL -eL llama-server \
-        --models-preset "$PRESET" \
-        --port "$PORT" \
-        --host "$HOST" \
-        --models-max "$MODELS_MAX" \
-        --sleep-idle-seconds "$SLEEP_IDLE" \
-        --chat-template-kwargs '{"preserve_thinking":false}' \
+    nohup bash -c "stdbuf -oL -eL llama-server \
+        --models-preset \"\$PRESET\" \
+        --port \"\$PORT\" \
+        --host \"\$HOST\" \
+        --models-max \$MODELS_MAX \
+        --sleep-idle-seconds \$SLEEP_IDLE \
+        --chat-template-kwargs '{\"preserve_thinking\":false}' \
         --kv-unified \
         --log-timestamps \
-        --log-verbosity "$LOG_VERBOSITY" \
+        --log-verbosity \$LOG_VERBOSITY \
         --metrics \
         --perf \
-        2>&1 | python3 "$HOME/Models/log_wrapper.py" &
+        2>\&1 | python3 \"\$HOME/Models/log_wrapper.py\"" &
     echo $! > "$PIDFILE"
     sleep 3
     if kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
