@@ -50,7 +50,7 @@ start_embed() {
     fi
     wait_for_port_free "$EMBED_PORT" 10
     echo "Starting embedding-server on $HOST:$EMBED_PORT..."
-    nohup llama-server \
+    nohup stdbuf -oL -eL llama-server \
         --model "$EMBED_MODEL" \
         --port "$EMBED_PORT" \
         --host "$HOST" \
@@ -84,7 +84,7 @@ start_dedicated() {
     fi
     wait_for_port_free "$DEDICATED_PORT" 15
     echo "Starting dedicated server on $HOST:$DEDICATED_PORT (always loaded, never sleeps)..."
-    nohup llama-server \
+    nohup stdbuf -oL -eL llama-server \
         --model "$DEDICATED_MODEL" \
         --port "$DEDICATED_PORT" \
         --host "$HOST" \
@@ -126,7 +126,7 @@ start_router() {
     fi
     wait_for_port_free "$PORT" 15
     echo "Starting llama-server router on $HOST:$PORT (models-max=$MODELS_MAX, sleep-idle=${SLEEP_IDLE}s)..."
-    nohup llama-server \
+    nohup stdbuf -oL -eL llama-server \
         --models-preset "$PRESET" \
         --port "$PORT" \
         --host "$HOST" \
