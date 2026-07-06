@@ -24,6 +24,36 @@ EMBED_PIDFILE="$HOME/Models/embedding-server.pid"
 
 # Dedicated server (always loaded, never sleeps)
 # Dense model — best accuracy (82.5% on harness-bench), primary for all work
+#
+# KV cache math (Qwen3.6-27B, per https://huggingface.co/unsloth/Qwen3.6-27B-MTP-GGUF):
+#   - 64 layers total: 16 groups of (3× DeltaNet + 1× Gated Attention)
+#   - Only the 16 Gated Attention layers need KV cache (DeltaNet uses linear attn)
+#   - Gated Attention: 4 KV heads × 256 head dim
+#   - KV per token: 16 × 4 × 256 × 2 (K+V) = 32,768 values
+#   - q8_0 KV cache: 32,768 values × 1 byte = 32 KiB per token
+#   - f16 KV cache: 32,768 values × 2 bytes = 64 KiB per token
+#
+#   Context size | q8_0 KV  | f16 KV
+#   128K         | ~4.0 GB  | ~8.0 GB
+#   262K         | ~8.0 GB  | ~16.0 GB
+#   524K         | ~16.0 GB | ~32.0 GB
+#
+#   Total GPU memory ≈ model weights (~22 GB) + KV cache
+#   128K @ q8: ~26 GB  |  262K @ q8: ~30 GB  |  524K @ q8: ~38 GB
+#
+# --ctx-size (num-ctx) is the TOTAL context pool shared across all slots.
+# With --kv-unified, llama.cpp allocates a single contiguous block of num-ctx
+# tokens; slots share prefixes and draw from the same pool.
+# With --no-kv-unified, each of `parallel` slots gets its own num-ctx/parallel
+# allocation — easier to allocate but no prefix sharing.
+#
+# Individual slot context is still capped at the training max (262,144). Setting
+# num-ctx higher than that is fine for supporting multiple slots that collectively
+# need more context, but llama.cpp will warn and cap per-slot to 262K.
+#
+# On 128GB Apple Silicon, 524K @ q8 (~38 GB GPU) fits. Metal command buffer
+# working memory can still OOM during large decode batches — Metal has its own
+# limits beyond the KV cache.
 DEDICATED_MODEL="$HOME/Models/Qwen3.6-27B-MTP-GGUF/Qwen3.6-27B-Q8_0.gguf"
 DEDICATED_PORT="${LLAMA_DEDICATED_PORT:-18080}"
 DEDICATED_LOG="$HOME/Models/dedicated-server.log"
@@ -61,7 +91,7 @@ start_embed() {
         --log-timestamps \
         --log-verbosity \"$LOG_VERBOSITY\" \
         --metrics \
-        2>&1 | LOG_NAME=\"embedding-server.log\" python3 \"$HOME/Models/log_wrapper.py\"" &
+        2>&1 | LOG_NAME=\"embedding-server.log\" python3 \"$HOME/Models/log_wrapper.py\"" >/dev/null 2>/dev/null &
     echo $! > "$EMBED_PIDFILE"
     sleep 2
     if kill -0 "$(cat "$EMBED_PIDFILE")" 2>/dev/null; then
@@ -89,9 +119,9 @@ start_dedicated() {
         --port \"$DEDICATED_PORT\" \
         --host \"$HOST\" \
         --alias qwen3.6-27b \
-        --ctx-size 1048576 \
+        --ctx-size 524288 \
         --n-gpu-layers 99 \
-        --parallel 4 \
+        --parallel 2 \
         --temp 0.6 \
         --top-p 0.95 \
         --top-k 20 \
@@ -102,12 +132,12 @@ start_dedicated() {
         --log-verbosity \"$LOG_VERBOSITY\" \
         --metrics \
         --perf \
-        --no-kv-unified \
+        --kv-unified \
         --slot-save-path \"$HOME/Models/slot-cache\" \
         --spec-type draft-mtp \
         --spec-draft-n-max 4 \
         --chat-template-kwargs '{\"preserve_thinking\":false}' \
-        2>&1 | LOG_NAME=\"dedicated-server.log\" python3 \"$HOME/Models/log_wrapper.py\"" &
+        2>&1 | LOG_NAME=\"dedicated-server.log\" python3 \"$HOME/Models/log_wrapper.py\"" >/dev/null 2>/dev/null &
     echo $! > "$DEDICATED_PIDFILE"
     sleep 3
     if kill -0 "$(cat "$DEDICATED_PIDFILE")" 2>/dev/null; then
@@ -138,7 +168,7 @@ start_router() {
         --log-verbosity $LOG_VERBOSITY \
         --metrics \
         --perf \
-        2>&1 | python3 \"$HOME/Models/log_wrapper.py\"" &
+        2>&1 | python3 \"$HOME/Models/log_wrapper.py\"" >/dev/null 2>/dev/null &
     echo $! > "$PIDFILE"
     sleep 3
     if kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
