@@ -25,21 +25,39 @@ EMBED_PIDFILE="$HOME/Models/embedding-server.pid"
 # Dedicated server (always loaded, never sleeps)
 # Dense model — best accuracy (82.5% on harness-bench), primary for all work
 #
-# KV cache math (Qwen3.6-27B, per https://huggingface.co/unsloth/Qwen3.6-27B-MTP-GGUF):
-#   - 64 layers total: 16 groups of (3× DeltaNet + 1× Gated Attention)
-#   - Only the 16 Gated Attention layers need KV cache (DeltaNet uses linear attn)
+# KV cache math — sliding window layers DO get cached (window limits attention,
+# not storage). All attention layers count, not just global.
+#
+# Qwen3.6-27B (dense, per https://huggingface.co/unsloth/Qwen3.6-27B-MTP-GGUF):
+#   - 64 layers: 16×(3× DeltaNet + 1× Gated Attention); only 16 attn layers
 #   - Gated Attention: 4 KV heads × 256 head dim
-#   - KV per token: 16 × 4 × 256 × 2 (K+V) = 32,768 values
-#   - q8_0 KV cache: 32,768 values × 1 byte = 32 KiB per token
-#   - f16 KV cache: 32,768 values × 2 bytes = 64 KiB per token
+#   - KV/token: 16 × 4 × 256 × 2 = 32,768 values (32 KiB @ q8, 64 KiB @ f16)
 #
-#   Context size | q8_0 KV  | f16 KV
-#   128K         | ~4.0 GB  | ~8.0 GB
-#   262K         | ~8.0 GB  | ~16.0 GB
-#   524K         | ~16.0 GB | ~32.0 GB
+# Qwen3.6-35B-A3B (MoE, per https://huggingface.co/Qwen/Qwen3.6-35B-A3B):
+#   - 40 layers: 10×(3× DeltaNet + 1× Gated Attention); only 10 attn layers
+#   - Gated Attention: 2 KV heads × 256 head dim
+#   - KV/token: 10 × 2 × 256 × 2 = 10,240 values (10 KiB @ q8, 20 KiB @ f16)
 #
-#   Total GPU memory ≈ model weights (~22 GB) + KV cache
-#   128K @ q8: ~26 GB  |  262K @ q8: ~30 GB  |  524K @ q8: ~38 GB
+# Gemma-4-26B-A4B (MoE, per https://huggingface.co/google/gemma-4-26B-A4B):
+#   - 30 layers: 25 sliding (4 KV × 256) + 5 global (4 KV × 512)
+#   - Both layer types = 1,024 values each
+#   - KV/token: 30 × 1,024 × 2 = 61,440 values (60 KiB @ q8, 120 KiB @ f16)
+#
+# Gemma-4-31B-IT (dense, per https://huggingface.co/blog/lujangusface/tw-eagle3-gemma4):
+#   - 60 layers: 50 sliding (8 KV × 256) + 10 global (4 KV × 512)
+#   - Both layer types = 2,048 values each
+#   - KV/token: 60 × 2,048 × 2 = 245,760 values (240 KiB @ q8, 480 KiB @ f16)
+#
+# KV cache size by context (q8_0):
+#   Model           | 128K    | 262K    | 524K
+#   Qwen3.6-27B     | ~4.0 GB | ~8.0 GB | ~16.0 GB
+#   Qwen3.6-35B-A3B | ~1.2 GB | ~2.4 GB | ~4.9 GB
+#   Gemma-4-26B-A4B | ~7.6 GB | ~15.3 GB| ~30.5 GB
+#   Gemma-4-31B-IT  | ~30.0 GB| ~60.0 GB| ~120.0 GB
+#
+# Total GPU memory ≈ model weights + KV cache (q8_0):
+#   Qwen3.6-27B @ 262K: ~30 GB  |  Gemma-4-26B-A4B @ 262K: ~32 GB
+#   Qwen3.6-35B-A3B @ 262K: ~20 GB | Gemma-4-31B-IT @ 262K: ~95 GB
 #
 # --ctx-size (num-ctx) is the TOTAL context pool shared across all slots.
 # With --kv-unified, llama.cpp allocates a single contiguous block of num-ctx
