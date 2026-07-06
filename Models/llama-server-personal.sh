@@ -137,7 +137,7 @@ start_dedicated() {
         --port \"$DEDICATED_PORT\" \
         --host \"$HOST\" \
         --alias qwen3.6-27b \
-        --ctx-size 524288 \
+        --ctx-size 262144 \
         --n-gpu-layers 99 \
         --parallel 2 \
         --temp 0.6 \
