@@ -61,7 +61,7 @@ start_embed() {
         --log-timestamps \
         --log-verbosity \"$LOG_VERBOSITY\" \
         --metrics \
-        2>\&1 | LOG_NAME=\"embedding-server.log\" python3 \"$HOME/Models/log_wrapper.py\"" &
+        2>&1 | LOG_NAME=\"embedding-server.log\" python3 \"$HOME/Models/log_wrapper.py\"" &
     echo $! > "$EMBED_PIDFILE"
     sleep 2
     if kill -0 "$(cat "$EMBED_PIDFILE")" 2>/dev/null; then
@@ -107,7 +107,7 @@ start_dedicated() {
         --spec-type draft-mtp \
         --spec-draft-n-max 4 \
         --chat-template-kwargs '{\"preserve_thinking\":false}' \
-        2>\&1 | LOG_NAME=\"dedicated-server.log\" python3 \"$HOME/Models/log_wrapper.py\"" &
+        2>&1 | LOG_NAME=\"dedicated-server.log\" python3 \"$HOME/Models/log_wrapper.py\"" &
     echo $! > "$DEDICATED_PIDFILE"
     sleep 3
     if kill -0 "$(cat "$DEDICATED_PIDFILE")" 2>/dev/null; then
@@ -138,7 +138,7 @@ start_router() {
         --log-verbosity $LOG_VERBOSITY \
         --metrics \
         --perf \
-        2>\&1 | python3 \"$HOME/Models/log_wrapper.py\"" &
+        2>&1 | python3 \"$HOME/Models/log_wrapper.py\"" &
     echo $! > "$PIDFILE"
     sleep 3
     if kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
