@@ -13,9 +13,9 @@
 	"provider": {
 		"llama-server-dedicated": {
 			"npm":  "@ai-sdk/openai-compatible",
-			"name": "llama-server dedicated (always-loaded)",
+			"name": "llama-server dedicated (via proxycache)",
 			"options": {
-				"baseURL": "http://localhost:{env:LLAMA_DEDICATED_PORT}/v1"
+				"baseURL": "http://localhost:{env:LLAMA_PROXYCACHE_PORT}/v1"
 			},
 			"models": {
 				"qwen3.6-27b": {
