@@ -1,8 +1,8 @@
 ---
-name: planner
+name: daily-planner
 description: Specialized agent for daily and weekly planning routines. Executes planning workflows end-to-end.
 model: "llama-server-dedicated/qwen3.6-27b"
-mode: primary
+mode: all
 temperature: 0.5
 permission:
   edit: allow
