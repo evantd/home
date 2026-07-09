@@ -8,6 +8,7 @@
 	],
 	"enabled_providers": [
 		"llama-server-dedicated",
+		"llama-server-vibe",
 		"llama-server"
 	],
 	"provider": {
@@ -20,6 +21,22 @@
 			"models": {
 				"qwen3.6-27b": {
 					"name": "qwen3.6-27B 🧠 Dense (always-loaded, text-only) — default",
+					"limit": {
+						"context": 131072,
+						"output":  32768
+					}
+				}
+			}
+		},
+		"llama-server-vibe": {
+			"npm":  "@ai-sdk/openai-compatible",
+			"name": "VibeThinker-3B dedicated server",
+			"options": {
+				"baseURL": "http://localhost:18084/v1"
+			},
+			"models": {
+				"vibethinker-3b": {
+					"name": "VibeThinker-3B 🧪 Reasoning-specialized (dedicated server)",
 					"limit": {
 						"context": 131072,
 						"output":  32768

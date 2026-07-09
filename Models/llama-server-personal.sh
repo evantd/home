@@ -77,6 +77,22 @@ DEDICATED_PORT="${LLAMA_DEDICATED_PORT:-18080}"
 DEDICATED_LOG="$HOME/Models/dedicated-server.log"
 DEDICATED_PIDFILE="$HOME/Models/dedicated-server.pid"
 
+# VibeThinker 3B dedicated server (always loaded, never sleeps)
+# Reasoning-specialized small model for design feedback loop.
+# ~3.1GB Q8_0, negligible memory cost to keep resident.
+VIBE_MODEL="$HOME/Models/VibeThinker-3B-GGUF/vibethinker-3b-q8_0.gguf"
+VIBE_PORT="${LLAMA_VIBE_PORT:-18084}"
+VIBE_LOG="$HOME/Models/vibe-server.log"
+VIBE_PIDFILE="$HOME/Models/vibe-server.pid"
+
+# Proxycache (KV cache proxy for dedicated server)
+# Sits between OpenCode and the dedicated server on port 18083.
+# Restores evicted KV cache from disk to avoid full re-prefill.
+PROXYCACHE_DIR="$HOME/Models/proxycache"
+PROXYCACHE_PORT="${LLAMA_PROXYCACHE_PORT:-18083}"
+PROXYCACHE_LOG="$HOME/Models/proxycache.log"
+PROXYCACHE_PIDFILE="$HOME/Models/proxycache.pid"
+
 # llama-server router mode (chat models, excluding MoE which runs standalone)
 PRESET="$HOME/Models/models-personal.ini"
 PORT="${LLAMA_INFERENCE_PORT:-18082}"
@@ -198,6 +214,79 @@ start_router() {
     fi
 }
 
+start_vibe() {
+    if [ -f "$VIBE_PIDFILE" ] && kill -0 "$(cat "$VIBE_PIDFILE")" 2>/dev/null; then
+        echo "VibeThinker server already running (PID $(cat "$VIBE_PIDFILE"))"
+        return 0
+    fi
+    if [ ! -f "$VIBE_MODEL" ]; then
+        echo "VibeThinker model not found: $VIBE_MODEL"
+        return 1
+    fi
+    wait_for_port_free "$VIBE_PORT" 10
+    echo "Starting VibeThinker server on $HOST:$VIBE_PORT..."
+    nohup bash -c "stdbuf -oL -eL llama-server \
+        --model \"$VIBE_MODEL\" \
+        --port \"$VIBE_PORT\" \
+        --host \"$HOST\" \
+        --alias vibethinker-3b \
+        --ctx-size 131072 \
+        --n-gpu-layers 99 \
+        --parallel 1 \
+        --temp 1.0 \
+        --top-p 0.95 \
+        --top-k -1 \
+        --cache-type-k q8_0 \
+        --cache-type-v q8_0 \
+        --jinja \
+        --log-timestamps \
+        --log-verbosity \"$LOG_VERBOSITY\" \
+        --metrics \
+        --perf \
+        --kv-unified \
+        2>&1 | LOG_NAME=\"vibe-server.log\" python3 \"$HOME/Models/log_wrapper.py\"" >/dev/null 2>/dev/null &
+    echo $! > "$VIBE_PIDFILE"
+    sleep 2
+    if kill -0 "$(cat "$VIBE_PIDFILE")" 2>/dev/null; then
+        echo "VibeThinker server started (PID $(cat "$VIBE_PIDFILE"))"
+    else
+        echo "VibeThinker server failed. Check $VIBE_LOG"
+        rm -f "$VIBE_PIDFILE"
+        return 1
+    fi
+}
+
+stop_vibe() {
+    stop_one "VibeThinker server" "$VIBE_PIDFILE" "" "$VIBE_PORT"
+}
+
+start_proxycache() {
+    if [ -f "$PROXYCACHE_PIDFILE" ] && kill -0 "$(cat "$PROXYCACHE_PIDFILE")" 2>/dev/null; then
+        echo "proxycache already running (PID $(cat "$PROXYCACHE_PIDFILE"))"
+        return 0
+    fi
+    wait_for_port_free "$PROXYCACHE_PORT" 5
+    echo "Starting proxycache on $HOST:$PROXYCACHE_PORT..."
+    nohup bash -c "source $PROXYCACHE_DIR/venv/bin/activate && \
+        source $PROXYCACHE_DIR/env.sh && \
+        cd $PROXYCACHE_DIR && \
+        python3 proxycache.py \
+        2>&1 | LOG_NAME='proxycache.log' python3 '$HOME/Models/log_wrapper.py'" >/dev/null 2>/dev/null &
+    echo $! > "$PROXYCACHE_PIDFILE"
+    sleep 2
+    if kill -0 "$(cat "$PROXYCACHE_PIDFILE")" 2>/dev/null; then
+        echo "proxycache started (PID $(cat "$PROXYCACHE_PIDFILE"))"
+    else
+        echo "proxycache failed. Check $PROXYCACHE_LOG"
+        rm -f "$PROXYCACHE_PIDFILE"
+        return 1
+    fi
+}
+
+stop_proxycache() {
+    stop_one "proxycache" "$PROXYCACHE_PIDFILE" "" "$PROXYCACHE_PORT"
+}
+
 # Wait for a port to become free (process exited and released the socket).
 # Retries up to $1 seconds, sleeping 0.5s between checks.
 # Uses lsof on macOS (ss is Linux-only).
@@ -217,6 +306,8 @@ start() {
     start_embed
     start_dedicated
     start_router
+    start_vibe
+    start_proxycache
 }
 
 stop_one() {
@@ -245,6 +336,8 @@ stop_one() {
 }
 
 stop() {
+    stop_one "proxycache" "$PROXYCACHE_PIDFILE" "" "$PROXYCACHE_PORT"
+    stop_one "VibeThinker server" "$VIBE_PIDFILE" "" "$VIBE_PORT"
     stop_one "Dedicated server" "$DEDICATED_PIDFILE" "" "$DEDICATED_PORT"
     stop_one "llama-server router" "$PIDFILE" "" "$PORT"
     stop_one "embedding-server" "$EMBED_PIDFILE" "" "$EMBED_PORT"
@@ -276,6 +369,21 @@ status() {
     else
         echo "llama-server router not running"
     fi
+    if [ -f "$VIBE_PIDFILE" ] && kill -0 "$(cat "$VIBE_PIDFILE")" 2>/dev/null; then
+        echo "VibeThinker       running (PID $(cat "$VIBE_PIDFILE")) :$VIBE_PORT"
+    else
+        echo "VibeThinker       not running"
+    fi
+    if [ -f "$PROXYCACHE_PIDFILE" ] && kill -0 "$(cat "$PROXYCACHE_PIDFILE")" 2>/dev/null; then
+        echo "proxycache          running (PID $(cat "$PROXYCACHE_PIDFILE")) :$PROXYCACHE_PORT"
+        if curl -s "http://$HOST:$PROXYCACHE_PORT/v1/models" >/dev/null 2>&1; then
+            echo "  /v1/models endpoint: available"
+        else
+            echo "  /v1/models endpoint: not responding"
+        fi
+    else
+        echo "proxycache          not running"
+    fi
 }
 
 restart_dedicated() {
@@ -290,15 +398,23 @@ restart_router() {
     start_router
 }
 
+restart_proxycache() {
+    stop_proxycache
+    sleep 2
+    start_proxycache
+}
+
 case "${1:-status}" in
     start)       start ;;
     stop)        stop ;;
     restart)     stop; sleep 5; start ;;
     restart-dedicated) restart_dedicated ;;
     restart-router)    restart_router ;;
+    restart-proxycache) restart_proxycache ;;
     status)      status ;;
     log)         tail -f "$DEDICATED_LOG" ;;
     embed-log)   tail -f "$EMBED_LOG" ;;
     dedicated-log) tail -f "$DEDICATED_LOG" ;;
-    *)           echo "Usage: $0 {start|stop|restart|restart-dedicated|restart-router|status|log|embed-log|dedicated-log}" ;;
+    proxycache-log) tail -f "$PROXYCACHE_LOG" ;;
+    *)           echo "Usage: $0 {start|stop|restart|restart-dedicated|restart-router|status|log|embed-log|dedicated-log|proxycache-log}" ;;
 esac
