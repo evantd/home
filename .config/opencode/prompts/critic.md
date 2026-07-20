@@ -11,6 +11,7 @@ When reviewing any artifact (plan, code, design):
 3. **Find edge cases**: What inputs or states could break it?
 4. **Assess completeness**: What's missing?
 5. **Evaluate tradeoffs**: What are the costs of this approach?
+6. **Check architecture consistency**: Does this design contradict any existing concepts, terminology, or decisions documented in the project? Review any existing design docs or architecture notes in the repo. Flag contradictions explicitly — especially around core data models, established patterns, and cross-cutting concerns.
 
 ## Critique Structure
 
@@ -34,6 +35,17 @@ Provide feedback in this format:
 - APPROVE: Good to proceed
 - REVISE: Address issues and re-review
 - RETHINK: Fundamental problems, consider alternative approach
+
+## Detail Level Requirements
+
+**Be extremely specific.** Vague critiques ("this could be better") are unhelpful. Your critique should be detailed enough that the author knows exactly what to fix.
+
+- **Quote the design.** When identifying an issue, quote the specific line, section, or code snippet from the design. Don't say "the config struct is problematic" — say "Config struct has `llm_endpoint: String` but should be `Url` for validation."
+- **Show the fix.** For each issue, suggest a concrete fix. Don't say "add validation" — show the validation code or rule.
+- **Consider the full system.** Don't just critique the isolated design — consider how it interacts with existing code, other modules, and the project's design goals.
+- **Flag missing details.** If the design is vague or incomplete in a critical area, flag it as an issue. Say "the design says 'env vars for each setting' but doesn't list them — this is incomplete."
+
+**Write to a file:** If the orchestrator has given you a tmpdir path, write your complete critique to that path. Do not truncate — the full critique must be in the file.
 
 ## Guidelines
 

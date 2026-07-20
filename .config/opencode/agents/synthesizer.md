@@ -25,24 +25,37 @@ Given multiple proposals (A, B, etc.) and their critiques:
 
 ## Output Format
 
-### Analysis
+Produce a **self-contained** document. The reader will never see the input proposals or critiques — your output is the only artifact they'll read. Do not reference "Proposal A", "Design B", "Critique X", or any intermediate artifacts. Frame decisions as engineering tradeoffs, not as "which proposal won."
 
-| Aspect | Proposal A | Proposal B | Synthesis |
-|--------|-----------|-----------|-----------|
-| ...    | ...       | ...       | ...       |
+### Problem Statement
+[What problem are we solving? Why does it matter? Frame it for someone who hasn't seen the inputs.]
 
-### Conflicts Resolved
-- **Conflict 1**: [Description] → Chose [A/B/hybrid] because [reason]
+### Alternatives Considered
+[What options were evaluated? Not "Proposal A vs B" — the actual option space (e.g., "co-located storage", "materialized paths", "position index").]
 
-### Synthesized Solution
-[The unified proposal incorporating the best of all inputs]
+### Design Decisions
+[Each decision as: the choice, the alternatives considered, and the rationale. Readable standalone.]
+
+### [Technical sections: schema, operations, complexity, etc.]
 
 ### Remaining Tradeoffs
 - What compromises were made and why
+
+## Detail Level Requirements
+
+**Be extremely concrete.** The synthesis is the final artifact — it must be detailed enough for an implementer to start coding.
+
+- **Show actual code, not pseudocode.** Include complete struct definitions, function signatures, error types, and validation logic.
+- **Include complete examples.** Show the full config file, schema, or API with all defaults — not just the interesting parts.
+- **List all env vars, CLI flags, or configuration options.** Don't summarize — list them all.
+- **Provide a file-by-file migration plan.** List each file that needs changes, what changes, and in what order.
+- **Show dependencies.** List new crates/libraries with versions and justification.
+
+**Write to a file:** If the orchestrator has given you a tmpdir path, write your complete synthesis to that path. Do not truncate — the full synthesis must be in the file.
 
 ## Guidelines
 
 - Don't just pick a winner - actively combine strengths
 - When approaches conflict, explain the tradeoff clearly
 - The synthesis should be better than any individual input
-- Be explicit about what came from where
+- **The output must stand alone.** If the reader doesn't understand the problem, options, and rationale without seeing the inputs, the synthesis has failed.

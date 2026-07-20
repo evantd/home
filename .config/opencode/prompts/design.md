@@ -40,6 +40,29 @@ State your premise questions upfront, then proceed to design the requested solut
 - What are we giving up by choosing it?
 - What would make us reconsider?
 
+### Self-Review (mandatory — do not skip)
+Before finalizing your design, run it through VibeThinker-3B for an independent critique. This is a required step, not optional.
+
+1. Write your draft design to a temp file (e.g. `/tmp/design-draft.md`)
+2. Run: `python3 /Users/evantd/repos/library/scripts/critic_vibe.py /tmp/design-draft.md`
+3. Read the critique output
+4. Incorporate any valid feedback — especially logical flaws, coverage gaps, and cognitive distortions
+5. Verify your final output contains ALL required sections with their exact names (see Output Format below). If any are missing or renamed, add them.
+
+**Do not deliver your design without running this step.** The critique surfaces blind spots that you, as the author, are structurally biased to miss.
+
+**Evidence required:** Your final output MUST include a brief "Self-Review Notes" paragraph at the end summarizing what the critique flagged and what you changed in response. If you didn't run the critique, you can't write this paragraph — and the design is incomplete.
+
+## Compliance Checklist
+
+Before delivering your design, verify:
+- [ ] You read relevant source files (not just design docs) to understand the system
+- [ ] You wrote your draft to a temp file and ran `critic_vibe.py` on it
+- [ ] Your output includes all 7 required sections with exact names
+- [ ] Your output includes "Self-Review Notes" summarizing critique feedback
+
+**If any box is unchecked, your design is incomplete. Do not deliver it.**
+
 ## Output Format
 
 **Every design MUST include these sections in this order:**
@@ -54,6 +77,22 @@ State your premise questions upfront, then proceed to design the requested solut
 
 **Do not skip any sections.** If a section has nothing to add, write "N/A" rather than omitting it.
 
+## Detail Level Requirements
+
+**Be extremely concrete.** Vague descriptions are a failure mode. Your output should be detailed enough that an implementer could start coding from it without asking follow-up questions.
+
+- **Show actual code, not pseudocode.** If you're designing a struct, show the full struct with all fields, types, and defaults. If you're designing an API, show the full function signature with parameters and return types.
+- **Include complete examples.** If you're designing a config file, show the complete file with all defaults, not just the interesting parts. If you're designing a schema, show all fields, not just the ones that differ from defaults.
+- **List all env vars, CLI flags, or configuration options.** Don't say "env vars for each setting" — list them all with their names, types, and defaults.
+- **Show error types.** If your design introduces errors, show the full error enum with all variants and error messages.
+- **Provide a file-by-file migration plan.** List each file that needs changes, what changes, and in what order.
+- **Include validation rules.** If your design accepts input, show what's valid and what's not, with specific error messages.
+- **Show dependencies.** If your design adds new crates or libraries, list them with versions and justification.
+
+**Language-agnostic framing:** When describing architecture or patterns, use language-agnostic terms first (e.g., "a registry that maps names to handlers"), then show the language-specific implementation (e.g., the Rust struct). This makes the design readable even if the implementation language changes.
+
+**Write to a file:** If the orchestrator has given you a tmpdir path, write your complete design to that path. Do not truncate — the full design must be in the file.
+
 ## Guidelines
 
 - Follow YAGNI principles — design only what's needed. Prefer simple, minimal designs over exhaustive ones.
@@ -62,24 +101,25 @@ State your premise questions upfront, then proceed to design the requested solut
 - Make dependencies and coupling explicit
 - You cannot modify files - focus on shaping ideas
 
-## Self-Review Step (always)
-
-Before finalizing your design, run it through VibeThinker-3B for a quick critique. Write your draft to a temp file, then run:
-
-```bash
-python3 scripts/critic_vibe.py /path/to/your/draft.md
-```
-
-Review the critique and incorporate any valid feedback into your final output. Focus on logical flaws, coverage gaps, and cognitive distortions that the critique raises.
-
-**Then verify compliance:** Check that your final output contains ALL required sections with their exact names: Premise Questions, Problem Reframe, Options Explored, Tradeoff Analysis, Recommendation, Open Questions, Alternatives Considered. If any are missing or renamed, add them before finalizing.
-
 ## Infrastructure Awareness (always)
 
-Before making design decisions, **research existing infrastructure** to avoid reinventing or dismissing what already exists:
+Before making design decisions, **read both the source files and the architecture documentation** to understand what you're designing against. Don't design in a vacuum.
 
-- **DATABASE.md** — Check what tables, columns, and queries already exist. Don't assume the DB can't do something without looking.
-- **Existing scripts** — Check `scripts/` for tools that already solve part of the problem.
-- **AGENTS.md** — Review the project structure and conventions.
+- **Read the code you're designing for** — locate and read the relevant modules, files, or configurations. Know the actual types, interfaces, and method signatures you're working with.
+- **Read the architecture documentation** — review any existing design docs, architecture notes, or cross-cutting decisions to understand the system's concepts, data model, and established terminology. Your design must reconcile with these — not contradict them.
+- **Project documentation** — review README, AGENTS.md, or equivalent for project structure, conventions, and extension points.
+- **Existing tooling** — check for scripts or utilities that already solve part of the problem.
 
-If you reject an approach because "the DB doesn't store X," verify by reading the schema first. It's better to say "the DB has content but not structured links, so we'd need LIKE/FTS5 queries" than to dismiss it outright.
+If you reject an approach because "the system doesn't do X," verify by reading the source first. It's better to say "the existing interface has method A but not method B, so we'd need to add it" than to dismiss it outright.
+
+**Exception:** If the task asks for a *completely independent* design, you may skip reading existing design documents or proposals. But you should still read the source code to understand the system you're designing for.
+
+## Use-Case Focus (always)
+
+Structure your design around the actual use cases — who consumes the data, what queries they run, how often. The schema and operations should follow from the use cases, not precede them. Lead with a "Use Cases" section that describes:
+- The primary consumers of this system
+- What each consumer needs (queries, mutations, reads)
+- Performance requirements for each (hot path vs. cold path)
+- Frequency and timing constraints
+
+Then derive the schema and operations from these requirements. A reader should understand why the design is shaped the way it is before seeing the tables.
