@@ -53,6 +53,15 @@ Now proceeding with user request...
 </thinking>
 ```
 
+## Scope Discipline: Problem → Design → Implementation
+
+- Start by describing the observed problem, desired outcome, evidence, and real constraints. Do not silently turn an initial solution idea into a requirement.
+- In Jira tickets and plans, separate required behavior from implementation ideas. Acceptance criteria should describe observable outcomes and essential boundaries; label proposed designs as options unless the user explicitly chose one or a constraint requires it.
+- Do not invent completeness requirements, edge cases, extensibility, configurability, abstractions, or generalized infrastructure for hypothetical future needs. Complexity needs evidence.
+- Compare a proposed design with the smallest viable solution before committing to it. If the scope grows, pause and repeat that comparison.
+- Implement the simplest design that satisfies the actual requirements and preserves existing contracts.
+- After the implementation works, make a simplification pass: remove unnecessary layers, names, branches, and defensive handling before presenting the result.
+
 # ⚠️ CRITICAL: Sequential vs Parallel Tool Usage ⚠️
 
 **When operations have dependencies, run them SEQUENTIALLY, not in parallel:**
@@ -83,6 +92,7 @@ Now proceeding with user request...
 - ✅ **Always explicitly stage files**: `git add file1.ts file2.ts` or `git add src/specific/path/`
 - ✅ Use `git status` first to see what would be staged
 - ✅ **Continuation threads**: When continuing from a previous thread (handoff, "continuing from T-..."), uncommitted changes from the prior thread are part of *your* work. Check `git diff --name-only` for related unstaged changes and include them in your commit.
+- ✅ **Sitespeed work**: After local validation, push to an appropriately named dedicated branch and open a Draft MR. Prefer the normal CI-provided Lemma deployment for QA/performance validation. Never merge without explicit approval.
 
 **Only run in parallel when truly independent:**
 - Reading multiple different files simultaneously ✅
@@ -114,6 +124,7 @@ Now proceeding with user request...
 - **CORGI**: Cross-Organizational Initiative
 - **DFR**: Developer First Responder (on-call for outages + handling support for team's internal customers)
 - **Lemma**: Indeed's internal ephemeral environment tool for deploying branches to QA for testing. Uses `lemma/lemma_config.yaml` in repos. NOT related to `@aspect-build/lemma`.
+- **Lemma lifecycle**: Pipelines commonly sequence `Lemma deploy` → Cypress tests → `Lemma cleanup`. To restore an expired environment, rerun its existing `Lemma deploy` job instead of pushing a new branch; the restored environment is automatically cleaned up after about two days.
 - **PTL**: Progress Through Level (career progression metric)
 - **SERP**: Search Results Page (job search results; on desktop includes split-pane ViewJob)
 - **TEA**: Talent Enablement Automation (Hackathon project focused on cost optimization and enhancement)
@@ -162,6 +173,12 @@ Load this file when discussing web performance, Core Web Vitals, Lighthouse scor
 **Location**: ~/indeed/writing-style/
 
 When drafting content, load context-specific guides (Slack, Confluence, code review, etc.) from that directory.
+
+For substantive AI-assisted prose that Evan will send or publish, run the draft
+through `python3 ~/indeed/writing-style/scripts/llm_cliche_highlighter.py` via
+stdin before presenting it. Treat matches as review prompts, not automatic
+failures: revise accidental LLM mannerisms and preserve intentional language.
+Do not run this check on ordinary conversational replies.
 
 **Slack-flavored Markdown:**
 When drafting Slack messages, use Slack's markdown syntax:
