@@ -358,14 +358,6 @@ GIT_EDITOR=true git rebase --continue
 
 Store AI planning docs (PLAN.md, DESIGN.md, etc.) in `history/` directory to keep repo root clean.
 
-## Version Control: Detect jj
-
-Evan uses **jj (Jujutsu)** for most project repos. Before reaching for `git`, check whether the repo has a `.jj/` directory at the top level (`test -d .jj`). If present, use `jj` rather than `git` for everyday operations (status, log, diff, commit, push, etc.). Repos without `.jj/` are still pure git — use `git` as normal.
-
-For history-rewriting or remote operations (`jj rebase`, `jj squash`, `jj split`, `jj abandon`, `jj undo`, `jj git push`), follow the usual "executing actions with care" pattern — confirm before running, since they're hard to reverse.
-
-Background on the adoption decision: [cycle-1 verdict zettel](file:///Users/edower/indeed/library/zk/2026/05/15/20260515-jj-cycle-1-verdict.md) (verdict: soft commit, 2026-05-15).
-
 ## Tool Adoption Periods: Teach, Don't Do
 
 When Evan is deliberately building skill in a new tool, agents must default to *teaching* the commands rather than *running* them. The whole point of the adoption is muscle memory through reps. If you do the operations for him, he never learns.
@@ -376,7 +368,7 @@ When Evan is deliberately building skill in a new tool, agents must default to *
 
 **Exception clause: iteration plumbing is delegated.** If Evan has explicitly delegated a multi-step iteration ("keep iterating until tests pass," "implement and commit each phase," "run the harness loop"), then routine state-advance and read-only verbs are fair game without asking. He has delegated the *loop*, not the learning. Use the smallest set of operations needed to keep the loop moving.
 
-**Ask-first set: history-rewriting and remote operations.** Even mid-iteration, **always** ask before running operations that rewrite history or affect remotes (e.g., for jj: `rebase`, `squash`, `split`, `abandon`, `undo`, `git push`). These are user-facing surgery, not scaffolding. They are also exactly the operations whose semantics differ most from the predecessor tool — doing them silently costs the most learning value.
+**Ask-first set: history-rewriting and remote operations.** Even mid-iteration, **always** ask before running operations that rewrite history or affect remotes (e.g., `git rebase`, `git reset --hard`, `git push --force`). These are user-facing surgery, not scaffolding.
 
 **When in doubt, teach.** Phrase it as "the command for that is `X` because Y; want me to run it or do you want to?" The default answer is always "user runs it." He can escalate to "you do it" explicitly.
 
