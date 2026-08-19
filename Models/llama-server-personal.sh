@@ -150,9 +150,10 @@ start_dedicated() {
     echo "Starting dedicated server on $HOST:$DEDICATED_PORT (always loaded, never sleeps)..."
     nohup bash -c "stdbuf -oL -eL llama-server \
         --model \"$DEDICATED_MODEL\" \
+        --mmproj \"$HOME/Models/Qwen3.8-27B-GGUF/mmproj-F16.gguf\" \
         --port \"$DEDICATED_PORT\" \
         --host \"$HOST\" \
-        --alias qwen3.8-27b \
+        --alias qwen-dense \
         --ctx-size 262144 \
         --n-gpu-layers 99 \
         --parallel 2 \
@@ -361,7 +362,7 @@ status() {
     fi
     if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
         echo "llama-server router running (PID $(cat "$PIDFILE")) :$PORT"
-        if curl -s "http://$HOST:$PORT/metrics?model=qwen3.6-27b" >/dev/null 2>&1; then
+        if curl -s "http://$HOST:$PORT/metrics?model=qwen-dense" >/dev/null 2>&1; then
             echo "  metrics endpoint: available"
         else
             echo "  metrics endpoint: not responding (may need --metrics flag)"

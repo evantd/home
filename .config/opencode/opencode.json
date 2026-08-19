@@ -1,7 +1,7 @@
 {
 	"$schema":       "https://opencode.ai/config.json",
 	"permission":    "allow",
-	"model":         "llama-server-dedicated/qwen3.8-27b",
+	"model":         "llama-server-dedicated/qwen-dense",
 	"default_agent": "assistant",
 	"instructions": [
 		"instructions/common.md"
@@ -19,8 +19,11 @@
 				"baseURL": "http://localhost:{env:LLAMA_PROXYCACHE_PORT}/v1"
 			},
 			"models": {
-				"qwen3.8-27b": {
-					"name": "qwen3.8-27B 🧠 Dense (always-loaded, text-only) — default",
+				"qwen-dense": {
+					"name": "Qwen3.8-27B 🧠 Dense (always-loaded, text+image) — default",
+					"modalities": {
+						"input": ["text", "image"]
+					},
 					"limit": {
 						"context": 131072,
 						"output":  32768
@@ -51,8 +54,8 @@
 				"baseURL": "http://localhost:{env:LLAMA_INFERENCE_PORT}/v1"
 			},
 			"models": {
-				"qwen3.8-27b": {
-					"name": "qwen3.8-27B 🧠 Dense (on-demand via router)",
+				"qwen-dense": {
+					"name": "Qwen3.8-27B 🧠 Dense (on-demand via router)",
 					"modalities": {
 						"input": ["text", "image"]
 					},
@@ -61,24 +64,14 @@
 						"output":  32768
 					}
 				},
-				"qwen3.6-27b": {
-					"name": "qwen3.6-27B 🧠 Dense (on-demand via router)",
-					"modalities": {
-						"input": ["text", "image"]
-					},
-					"limit": {
-						"context": 131072,
-						"output":  32768
-					}
-				},
-				"nemotron-3.5-lightning": {
+				"nemotron-moe": {
 					"name": "Nemotron 3.5 Lightning 30B-A3B ⚡ MoE (3B active) — agent-optimized",
 					"limit": {
 						"context": 131072,
 						"output":  32768
 					}
 				},
-				"muse-glimmer-30b": {
+				"muse-dense": {
 					"name": "Muse Glimmer 30B 🎨 Dense multimodal — creative reasoning",
 					"modalities": {
 						"input": ["text", "image"]
@@ -88,21 +81,21 @@
 						"output":  32768
 					}
 				},
-				"gemma-4-31b": {
+				"gemma-dense": {
 					"name": "gemma-4-31B-it 🔬 Strong reasoning",
 					"limit": {
 						"context": 131072,
 						"output":  32768
 					}
 				},
-				"gemma-4-26b-moe": {
+				"gemma-moe": {
 					"name": "gemma-4-26B-A4B-it ⚡ MoE (4B active) — fast",
 					"limit": {
 						"context": 131072,
 						"output":  32768
 					}
 				},
-				"qwen3.6-moe": {
+				"qwen-moe": {
 					"name": "qwen3.6-35B-A3B 🚀 MoE (3B active) — fast fallback",
 					"modalities": {
 						"input": ["text", "image"]

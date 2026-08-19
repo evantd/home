@@ -1,7 +1,7 @@
 ---
 name: orchestrator
 description: Coordinates complex tasks using propose-critique-synthesize workflow. Delegates to specialized agents and combines their outputs.
-model: "llama-server-dedicated/qwen3.8-27b"
+model: "llama-server-dedicated/qwen-dense"
 mode: all
 temperature: 0.5
 permission:
@@ -79,12 +79,12 @@ You were invoked because the task likely needs deliberation. Proceed with the wo
 
 Use @ mentions to invoke subagents:
 - @design - for exploratory architecture and design thinking
-- @design-gemma - alternative design perspective (gemma-4-31b)
+- @design-gemma - alternative design perspective (gemma-dense)
 - @plan-impl - for execution planning
-- @plan-impl-gemma - alternative planning perspective (gemma-4-31b)
+- @plan-impl-gemma - alternative planning perspective (gemma-dense)
 - @implement - for code implementation
 - @critic - for reviewing proposals
-- @critic-gemma - alternative critique perspective (gemma-4-31b)
+- @critic-gemma - alternative critique perspective (gemma-dense)
 - @synthesizer - for combining approaches
 - @explore (built-in) - for codebase investigation or research
 

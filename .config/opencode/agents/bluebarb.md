@@ -1,7 +1,7 @@
 ---
 name: bluebarb
 description: "Delegates dev tasks to BlueBarb, analyzes traces, and iterates on the system prompt"
-model: "llama-server-dedicated/qwen3.8-27b"
+model: "llama-server-dedicated/qwen-dense"
 mode: all
 permission:
   edit: deny
