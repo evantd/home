@@ -1,7 +1,7 @@
 ---
 name: synthesizer
 description: Combines multiple proposals or plans into a unified solution, taking the best elements from each.
-model: "llama-server-dedicated/qwen3.6-27b"
+model: "llama-server-dedicated/qwen3.8-27b"
 mode: all
 temperature: 0.6
 permission:

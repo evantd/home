@@ -72,7 +72,7 @@ EMBED_PIDFILE="$HOME/Models/embedding-server.pid"
 # On 128GB Apple Silicon, 524K @ q8 (~38 GB GPU) fits. Metal command buffer
 # working memory can still OOM during large decode batches — Metal has its own
 # limits beyond the KV cache.
-DEDICATED_MODEL="$HOME/Models/Qwen3.6-27B-MTP-GGUF/Qwen3.6-27B-Q8_0.gguf"
+DEDICATED_MODEL="$HOME/Models/Qwen3.8-27B-GGUF/Qwen3.8-27B-Q8_0.gguf"
 DEDICATED_PORT="${LLAMA_DEDICATED_PORT:-18080}"
 DEDICATED_LOG="$HOME/Models/dedicated-server.log"
 DEDICATED_PIDFILE="$HOME/Models/dedicated-server.pid"
@@ -152,7 +152,7 @@ start_dedicated() {
         --model \"$DEDICATED_MODEL\" \
         --port \"$DEDICATED_PORT\" \
         --host \"$HOST\" \
-        --alias qwen3.6-27b \
+        --alias qwen3.8-27b \
         --ctx-size 262144 \
         --n-gpu-layers 99 \
         --parallel 2 \
@@ -166,11 +166,11 @@ start_dedicated() {
         --log-verbosity \"$LOG_VERBOSITY\" \
         --metrics \
         --perf \
-        --kv-unified \
+        --no-kv-unified \
         --slot-save-path \"$HOME/Models/slot-cache\" \
         --spec-type draft-mtp \
         --spec-draft-n-max 4 \
-        --chat-template-kwargs '{\"preserve_thinking\":false}' \
+        --reasoning-preserve \
         2>&1 | LOG_NAME=\"dedicated-server.log\" python3 \"$HOME/Models/log_wrapper.py\"" >/dev/null 2>/dev/null &
     echo $! > "$DEDICATED_PIDFILE"
     sleep 3
@@ -196,7 +196,7 @@ start_router() {
         --host \"$HOST\" \
         --models-max $MODELS_MAX \
         --sleep-idle-seconds $SLEEP_IDLE \
-        --chat-template-kwargs '{\"preserve_thinking\":false}' \
+        --reasoning-preserve \
         --kv-unified \
         --log-timestamps \
         --log-verbosity $LOG_VERBOSITY \

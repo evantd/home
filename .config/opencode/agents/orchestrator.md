@@ -1,7 +1,7 @@
 ---
 name: orchestrator
 description: Coordinates complex tasks using propose-critique-synthesize workflow. Delegates to specialized agents and combines their outputs.
-model: "llama-server-dedicated/qwen3.6-27b"
+model: "llama-server-dedicated/qwen3.8-27b"
 mode: all
 temperature: 0.5
 permission:
