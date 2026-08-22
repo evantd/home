@@ -41,9 +41,51 @@ INFERENCE_PARALLEL=10
 LOG="$HOME/Models/llama-server.log"
 PIDFILE="$HOME/Models/llama-server.pid"
 
+# Resolve the live PID of a server, verifying against the actual process rather
+# than trusting the pidfile alone. Order:
+#   1. pidfile PID, if alive AND its cmdline is a llama-server (guards against
+#      a stale pidfile whose PID was reused by an unrelated process);
+#   2. otherwise whoever is LISTENing on the port, if it's a llama-server —
+#      and repair the pidfile to match (heals drift from reboots / out-of-band
+#      starts / start_all_services which brings llama up but never writes pids);
+#   3. otherwise not running — clear a stale pidfile.
+# Echoes the PID and returns 0 when running; returns 1 when not.
+resolve_pid() {
+    local pidfile="$1" port="$2" pid
+    if [ -f "$pidfile" ]; then
+        pid=$(cat "$pidfile" 2>/dev/null)
+        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null \
+           && ps -p "$pid" -o command= 2>/dev/null | grep -q llama-server; then
+            echo "$pid"
+            return 0
+        fi
+    fi
+    pid=$(lsof -ti "tcp:$port" -sTCP:LISTEN 2>/dev/null | head -1)
+    if [ -n "$pid" ] && ps -p "$pid" -o command= 2>/dev/null | grep -q llama-server; then
+        echo "$pid" > "$pidfile"
+        echo "$pid"
+        return 0
+    fi
+    [ -f "$pidfile" ] && rm -f "$pidfile"
+    return 1
+}
+
+# Poll a server's /health until it returns 200, up to $2 seconds. Returns 0 on
+# ready, 1 on timeout. llama-server answers /health only once the model is
+# loaded, so this catches "process alive but model still loading / crashed".
+wait_health() {
+    local port="$1" timeout="$2" i
+    for ((i = 0; i < timeout; i++)); do
+        [ "$(curl -s -o /dev/null -w '%{http_code}' "http://$HOST:$port/health" 2>/dev/null)" = "200" ] && return 0
+        sleep 1
+    done
+    return 1
+}
+
 start_embed() {
-    if [ -f "$EMBED_PIDFILE" ] && kill -0 "$(cat "$EMBED_PIDFILE")" 2>/dev/null; then
-        echo "embedding-server already running (PID $(cat "$EMBED_PIDFILE"))"
+    local pid
+    if pid=$(resolve_pid "$EMBED_PIDFILE" "$EMBED_PORT"); then
+        echo "embedding-server already running (PID $pid)"
         return 0
     fi
     if [ ! -f "$EMBED_MODEL" ]; then
@@ -62,19 +104,24 @@ start_embed() {
         --log-verbosity 1 \
         >> "$EMBED_LOG" 2>&1 &
     echo $! > "$EMBED_PIDFILE"
-    sleep 2
-    if kill -0 "$(cat "$EMBED_PIDFILE")" 2>/dev/null; then
+    if ! kill -0 "$(cat "$EMBED_PIDFILE")" 2>/dev/null; then
+        echo "embedding-server failed to spawn. Check $EMBED_LOG"
+        rm -f "$EMBED_PIDFILE"
+        return 1
+    fi
+    if wait_health "$EMBED_PORT" 30; then
         echo "embedding-server started (PID $(cat "$EMBED_PIDFILE"))"
     else
-        echo "embedding-server failed. Check $EMBED_LOG"
-        rm -f "$EMBED_PIDFILE"
+        echo "embedding-server spawned (PID $(cat "$EMBED_PIDFILE")) but /health not ready after 30s. Check $EMBED_LOG"
+        tail -n 5 "$EMBED_LOG"
         return 1
     fi
 }
 
 start_inference() {
-    if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-        echo "inference-server already running (PID $(cat "$PIDFILE"))"
+    local pid
+    if pid=$(resolve_pid "$PIDFILE" "$PORT"); then
+        echo "inference-server already running (PID $pid)"
         return 0
     fi
     if [ ! -f "$INFERENCE_MODEL" ]; then
@@ -101,12 +148,17 @@ start_inference() {
         --log-verbosity 1 \
         >> "$LOG" 2>&1 &
     echo $! > "$PIDFILE"
-    sleep 3
-    if kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+    if ! kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+        echo "inference-server failed to spawn. Check $LOG"
+        rm -f "$PIDFILE"
+        return 1
+    fi
+    # 35B model load is slow; poll /health rather than a fixed sleep.
+    if wait_health "$PORT" 180; then
         echo "inference-server started (PID $(cat "$PIDFILE"))"
     else
-        echo "inference-server failed. Check $LOG"
-        rm -f "$PIDFILE"
+        echo "inference-server spawned (PID $(cat "$PIDFILE")) but /health not ready after 180s. Check $LOG"
+        tail -n 5 "$LOG"
         return 1
     fi
 }
@@ -117,36 +169,31 @@ start() {
 }
 
 stop_one() {
-    local label="$1" pidfile="$2" pattern="$3"
-    if [ -f "$pidfile" ]; then
-        local pid
-        pid=$(cat "$pidfile")
-        if kill -0 "$pid" 2>/dev/null; then
-            echo "Stopping $label (PID $pid)..."
-            kill "$pid"
-            sleep 2
-            kill -0 "$pid" 2>/dev/null && kill -9 "$pid"
-        fi
+    local label="$1" pidfile="$2" port="$3" pid
+    if pid=$(resolve_pid "$pidfile" "$port"); then
+        echo "Stopping $label (PID $pid)..."
+        kill "$pid"
+        sleep 2
+        kill -0 "$pid" 2>/dev/null && kill -9 "$pid"
         rm -f "$pidfile"
-    elif [ -n "$pattern" ]; then
-        pkill -f "$pattern" 2>/dev/null
     fi
     echo "$label stopped"
 }
 
 stop() {
-    stop_one "inference-server" "$PIDFILE" "llama-server.*--alias $INFERENCE_ALIAS"
-    stop_one "embedding-server" "$EMBED_PIDFILE" "llama-server.*--embeddings.*--port $EMBED_PORT"
+    stop_one "inference-server" "$PIDFILE" "$PORT"
+    stop_one "embedding-server" "$EMBED_PIDFILE" "$EMBED_PORT"
 }
 
 status() {
-    if [ -f "$EMBED_PIDFILE" ] && kill -0 "$(cat "$EMBED_PIDFILE")" 2>/dev/null; then
-        echo "embedding-server  running (PID $(cat "$EMBED_PIDFILE")) :$EMBED_PORT"
+    local pid
+    if pid=$(resolve_pid "$EMBED_PIDFILE" "$EMBED_PORT"); then
+        echo "embedding-server  running (PID $pid) :$EMBED_PORT"
     else
         echo "embedding-server  not running"
     fi
-    if [ -f "$PIDFILE" ] && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
-        echo "inference-server running (PID $(cat "$PIDFILE")) :$PORT ($INFERENCE_ALIAS)"
+    if pid=$(resolve_pid "$PIDFILE" "$PORT"); then
+        echo "inference-server running (PID $pid) :$PORT ($INFERENCE_ALIAS)"
         curl -s "http://$HOST:$PORT/v1/models" 2>/dev/null | python3 -m json.tool 2>/dev/null | head -40 || echo "  (no /v1/models response)"
     else
         echo "inference-server not running"
